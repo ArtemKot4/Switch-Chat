@@ -3,19 +3,19 @@ class Desktop {
         return {
             drawing: [
                 {
-                    type: "background"
+                    type: "frame", bitmap: "unknown"
                 }
             ]
         } as UI.WindowContent;
     };
 
-    public static UI = () => {
+    public static UI = (() => {
        const window = new UI.Window(Desktop.getContent());
        window.setBlockingBackground(true);
        window.setAsGameOverlay(true);
        window.setCloseOnBackPressed(true);
        return window;
-    };
+    })();
 
     public static separateMessage(message: Message) {
         let result = [];
@@ -35,5 +35,19 @@ class Desktop {
         }
     
         return result.join("\n");
+    };
+
+    public static openFor(user: User) {
     }
-}
+};
+
+Network.addServerPacket("packet.switch_chat.open", (client, data: {}) => {
+    if(client) {
+        const user = User.get(client.getPlayerUid());
+        client.send("packet.switch_chat.open_with_user_data", {user});
+    }
+});
+
+Network.addClientPacket("packet.switch_chat.open_with_user_data", (data: {user: User}) => {
+    Desktop.openFor(data.user)
+})
