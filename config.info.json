@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "enabled": {
+      "name": {
+        "en": "Enable",
+        "ru": "Активировать"
+      }
+    },
+    "local_message_spreading": {
+      "name": {
+        "en": "Local message spreading",
+        "ru": "Локальное распространение сообщений"
+      },
+      "description": {
+        "en": "Count of blocks, where in radius player gets local message",
+        "ru": "Количество блоков, в радиусе которых игроки получат локальное сообщение"
+      }
+    }
+  }
+}
