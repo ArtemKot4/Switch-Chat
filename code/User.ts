@@ -1,13 +1,8 @@
-enum EChatType {
-    GLOBAL,
-    LOCAL
-};
-
 class User {
     public static list: Map<number, User> = new Map();
     protected constructor(public uuid: number, public name: string = Entity.getTypeName(uuid), public prefix?: string) {}
     public sendMessage(message: string, type: EChatType) {
-        Chat.send(new Message(this.uuid, message), type);
+        ChatManager.send(new Message(this, message), type);
     };
 
     public properties: Map<string, any> = new Map();

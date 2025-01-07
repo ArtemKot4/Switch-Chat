@@ -1,5 +1,5 @@
 class Message {
-    constructor(public userUUID: number, public message: string) {
+    constructor(public user: User, public message: string) {
         this.setParams();
     };
 
