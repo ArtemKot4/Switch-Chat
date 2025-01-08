@@ -32,7 +32,7 @@ namespace Utils {
     };
 };
 
-enum EChatType {
+const enum EChatType {
     GLOBAL,
     LOCAL
 };
@@ -40,4 +40,9 @@ enum EChatType {
 Translation.addTranslation("switch_chat.typing", {
     en: "Type your message here",
     ru: "Введите сообщение"
+});
+
+Translation.addTranslation("switch_chat.chat", {
+    en: "Chat",
+    ru: "Чат"
 });

@@ -1,41 +1,24 @@
 class Desktop {
+    public static currentChatType = EChatType.GLOBAL;
+
     public static getContent = (user: User) => {
 
-        type buttonContent = {
-            button: UI.UIButtonElement,
-            icon: UI.UIImageElement
-        };
-        
-        const createButton = (button_icon: string, x: number, y: number, onClick: (position, container) => void): buttonContent => {
+        const createButton = (x: number, y: number, type: EChatType): UI.UIButtonElement => {
             return {
-                button:
-                {
                     type: "button",
                     bitmap: "switch_button",
                     bitmap2: "switch_button_pressed",
-                    scale: 5,
-                    x,
-                    y,
+                    scale: 3.3,
+                    x: x,
+                    y: y,
                     clicker: {
-                        onClick
+                        onClick: (position, container) => {
+                            ChatScrolling.draw(type, user);
+                            this.currentChatType = type;
+                        }
                     }
-                },
-                icon:
-                {
-                    type: "image",
-                    bitmap: button_icon,
-                    scale: 3,
-                    x: x + x,
-                    y: y - 10,
-                    clicker: {
-                        onClick
-                    }
-                }
-            };
-        };
-
-        const button_local = createButton("chat_local_icon", 200, 50, (position, container) => ChatScrolling.draw(EChatType.LOCAL, user))
-        const button_global = createButton("chat_global_icon", 600, 50, (position, container) => ChatScrolling.draw(EChatType.GLOBAL, user))
+                };
+        }
 
         return {
             drawing: [
@@ -44,13 +27,26 @@ class Desktop {
                 }
             ],
             elements: {
-                button_local: button_local.button,
-                button_local_icon: button_local.icon,
-                button_global: button_global.button,
-                button_global_icon: button_global.icon
-            }
+                button_local: createButton(200, 15, EChatType.LOCAL),
+                button_global: createButton(500, 15, EChatType.GLOBAL),
+                button_local_icon:  {
+                    type: "image",
+                    bitmap: "chat_local_icon",
+                    scale: 2,
+                    x: 570,
+                    y: 30,
+                },
+                button_global_icon:  {
+                    type: "image",
+                    bitmap: "chat_global_icon",
+                    scale: 2,
+                    x: 370,
+                    y: 30
+                }
+            }  
         } as UI.WindowContent;
     };
+    
 
     public static UI = (() => {
         const window = new UI.Window();
@@ -67,15 +63,9 @@ class Desktop {
         ChatScrolling.open(EChatType.GLOBAL, user);
     };
 
+    public static isCurrentChatType<T extends EChatType>(type: T): boolean {
+        return this.currentChatType === type;
+    }
+
 };
 
-Network.addServerPacket("packet.switch_chat.open", (client, data: {}) => {
-    if(client) {
-        const user = User.get(client.getPlayerUid());
-        client.send("packet.switch_chat.open_with_user_data", {user});
-    };
-});
-
-Network.addClientPacket("packet.switch_chat.open_with_user_data", (data: {user: User}) => {
-    Desktop.openFor(data.user);
-});

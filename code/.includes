@@ -1,8 +1,12 @@
 # lib: esnext
 reider745/Keyboard.ts
 header.ts
-User.ts
 Message.ts
-Chat.ts
+chat/ChatManager.ts
+User.ts
+chat/ChatButton.ts
+chat/ChatScrolling.ts
+chat/KeyboardChat.ts
+
 Desktop.ts
 final.ts
