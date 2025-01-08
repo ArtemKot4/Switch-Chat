@@ -1,13 +1,14 @@
 class ChatScrolling {
-    public static UI: UI.Window = new UI.Window()
+    public static readonly HEIGHT = 370;
+    public static readonly UI: UI.Window = new UI.Window();
     public static getContent = (elements?: UI.ElementSet) => {
         return {
             location: {
                 x: 200,
-                y: 200,
+                y: 70,
                 width: 600,
-                height: 400,
-                scrollY: 400 + 50,
+                height: this.HEIGHT,
+                scrollY: this.HEIGHT + 50,
                 forceScrollY: true
             },
             drawing: [
@@ -35,7 +36,7 @@ class ChatScrolling {
                     size: 30
                 },
                 clicker: {
-                    onClick: (position, container) => new KeyboardChat(user, type).open()
+                    onClick: (position, container) => Desktop.close()
                 }
             },
             chat_type: {
@@ -102,13 +103,12 @@ class ChatScrolling {
     };
 
     public static updateScroll(number: number) {
-        this.UI.content.location.scrollY = 400 + number;
+        this.UI.content.location.scrollY = this.HEIGHT + number;
         this.UI.updateScrollDimensions();
         return;
     };
 
     public static update(elements: UI.ElementSet) {
-        alert("Я обновился! -> " + JSON.stringify(this.UI.content));
         this.UI.setContent(this.getContent(elements));
         this.UI.forceRefresh();
         return;
@@ -116,13 +116,14 @@ class ChatScrolling {
 
     public static open(type: EChatType, user: User) {
         this.draw(type, user);
-        if(!this.UI.isOpened()) this.UI.open();
+        if(!this.UI.isOpened()) {
+            this.UI.open();
+        }
         return;
     };
 
     static {
         this.UI.setContent(this.getContent());
-        this.UI.setCloseOnBackPressed(true);
     }
 };
 

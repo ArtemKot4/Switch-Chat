@@ -37,6 +37,10 @@ class ChatButton {
         ChatButton.container.close();
         Network.sendToServer("packet.switch_chat.open", {});
     };
+
+    public static open() {
+        !this.container.isOpened() && this.container.openAs(ChatButton.UI);
+    }
 }
 
 Callback.addCallback("NativeGuiChanged", function (screenName) {

@@ -4,7 +4,8 @@ class Desktop {
     public static getContent = (user: User) => {
 
         const createButton = (x: number, y: number, type: EChatType): UI.UIButtonElement => {
-            return {
+            return (
+                {
                     type: "button",
                     bitmap: "switch_button",
                     bitmap2: "switch_button_pressed",
@@ -17,7 +18,8 @@ class Desktop {
                             ChatScrolling.draw(type, user);
                         }
                     }
-                };
+                }
+            );
         }
 
         return {
@@ -52,7 +54,6 @@ class Desktop {
         const window = new UI.Window();
         window.setBlockingBackground(true);
         window.setAsGameOverlay(true);
-        window.setCloseOnBackPressed(true);
 
         return window;
     })();
@@ -60,8 +61,16 @@ class Desktop {
     public static openFor(user: User) {
         this.UI.setContent(this.getContent(user));
         this.UI.open();
-        ChatScrolling.open(EChatType.GLOBAL, user);
+        ChatScrolling.open(this.currentChatType, user);
+        ChatForm.open(user);
     };
+
+    public static close() {
+        this.UI.close();
+        ChatScrolling.UI.close();
+        ChatForm.UI.close();
+        ChatButton.open()
+    }
 
     public static isCurrentChatType<T extends EChatType>(type: T): boolean {
         return this.currentChatType === type;
