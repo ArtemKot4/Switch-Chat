@@ -1,6 +1,7 @@
 class ChatForm {
     public static UI: UI.Window = new UI.Window();
     public static getContent(text: Nullable<string>, user: User): UI.WindowContent {
+
         return {
             location: {
                 x: 200,
@@ -24,22 +25,37 @@ class ChatForm {
                 form: {
                     type: "text",
                     text: (() => {
-                        if(text && text.length > 20) {
-                            text = text.slice(0, 19) + "...";
+                        let copy = "".concat(text || "");
+
+                        if(typeof text === "string" && text.trim().length > 35) {
+                            copy = text.slice(0, 34) + "...";
                         };
-                        return text || Translation.translate("switch_chat.typing")
+
+                        return text === null ? Translation.translate("switch_chat.typing") : copy
                     })(),
                     font: {
                         size: 25,
-                        color: text && text.length > 0 ? android.graphics.Color.WHITE : android.graphics.Color.argb(255, 31, 31, 31)
+                        color: (() => {
+                            if(text === null) {
+                                return android.graphics.Color.argb(255, 31, 31, 31)
+                            } else {
+                                return android.graphics.Color.WHITE
+                            };  
+                        })(),
                     },
                     clicker: {
-                        onClick: (position, vector) => {
-                            new Keyboard(Translation.translate("switch_chat.typing"))
-                            .getText((text) => {
-                                ChatForm.setContent(text, user);
-                            })
-                            .open();
+                        onClick(position, vector) {
+                            const keyboard = new Keyboard(Translation.translate("switch_chat.typing"));
+
+                            keyboard.getText((text) => {
+                                if(text.trim().length > 0) {
+                                    ChatForm.setContent(text, user);
+                                } else {
+                                    ChatForm.setContent(null, user);
+                                }
+                            });
+
+                            keyboard.open();
                         }
                     },
                     y: 10,
@@ -47,19 +63,23 @@ class ChatForm {
                 },
                 send: {
                     type: "button",
-                    x: 840,
+                    x: 905,
                     y: 15,
                     bitmap: "chat_send_button",
                     bitmap2: "chat_send_button_pressed",
-                    scale: 3.5,
+                    scale: 3.6,
                     clicker: {
-                        onClick: (position, vector) => {
-                            if(!text) {
+                        onClick(position, vector) {
+                            if(text === null) { 
+                                ChatForm.setContent(null, user);
                                 return;
                             };
+
                             Game.message(text) //todo: debug;
-                            user.sendMessage(text, Desktop.currentChatType || EChatType.GLOBAL);
-                            this.setContent(null, user);
+
+                            ChatManager.send(new Message(user, text), Desktop.currentChatType ?? EChatType.GLOBAL);
+                            
+                            ChatForm.setContent(null, user);
                             return;
                         }
                     }

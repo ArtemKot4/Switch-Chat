@@ -21,7 +21,7 @@ class Keyboard {
                     .setPositiveButton("ok", {
                         onClick(){
                             let text = String(editText.getText());
-                            self.func(text == "" ? self.default_string : text)
+                            self.func(text)
                         }
                     }).show();
             }

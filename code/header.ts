@@ -16,7 +16,7 @@ namespace Utils {
         let line = "";
     
         for (let word of message.message.split(" ")) {
-            if (line.length + word.length <= 50) {
+            if (line.length + word.length <= 55) {
                 line += word + " ";
             } else {
                 result.push(line.trim());
@@ -34,7 +34,8 @@ namespace Utils {
 
 const enum EChatType {
     GLOBAL,
-    LOCAL
+    LOCAL,
+    SHOP
 };
 
 Translation.addTranslation("switch_chat.typing", {

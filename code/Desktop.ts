@@ -3,18 +3,22 @@ class Desktop {
 
     public static getContent = (user: User) => {
 
-        const createButton = (bitmap: string, x: number, y: number, type: EChatType): UI.UIButtonElement => {
+        const createButton = (char: string, color: number, x: number, type: EChatType): UI.UITextElement => {
             return (
                 {
-                    type: "button",
-                    bitmap: bitmap,
-                    scale: 3.3,
+                    type: "text",
                     x: x,
-                    y: y,
+                    y: 20,
+                    text: `[${char}]`,
+                    font: {
+                        size: 30,
+                        color: color
+                    },
                     clicker: {
-                        onClick: (position, container) => {
-                            this.currentChatType = type;
+                        onClick(position, container) {
+                            Desktop.currentChatType = type;
                             ChatScrolling.draw(type, user);
+                            return;
                         }
                     }
                 }
@@ -22,14 +26,21 @@ class Desktop {
         };
 
         return {
+            location: {
+                x: 200,
+                y: 25,
+                width: 600,
+                height: 50,
+            },
             drawing: [
                 {
-                    type: "background", color: android.graphics.Color.argb(0, 0, 0, 0)
+                    type: "background", color: android.graphics.Color.argb(90, 0, 0, 0)
                 }
             ],
             elements: {
-                button_local: createButton("switch_local", 220, 15, EChatType.LOCAL),
-                button_global: createButton("switch_global", 500, 15, EChatType.GLOBAL)
+                button_local: createButton("L", android.graphics.Color.LTGRAY, 145, EChatType.LOCAL),
+                button_global: createButton("G", android.graphics.Color.YELLOW, 445, EChatType.GLOBAL),
+                button_shop: createButton("S", android.graphics.Color.GREEN, 745, EChatType.SHOP),
             }  
         } as UI.WindowContent;
     };

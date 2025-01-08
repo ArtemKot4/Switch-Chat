@@ -3,6 +3,8 @@ class User {
     protected constructor(public uuid: number, public name: string = Entity.getNameTag(uuid), public prefix?: string) {};
     
     public sendMessage(message: string, type: EChatType) {
+        alert("абоба: " + message);
+
         return ChatManager.send(new Message(this, message), type);
     };
 

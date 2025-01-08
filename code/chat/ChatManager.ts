@@ -1,17 +1,19 @@
 class ChatManager {
     private static messages = {
         global: [] as Message[],
-        local: [] as Message[]
+        local: [] as Message[],
+        shop: [] as Message[]
     };
 
     public static send(message: Message, type: EChatType) {
-        alert("ChatManager.send") //debug
         Game.message("клиенты: " + Network.getConnectedClients());
 
         if(type === EChatType.GLOBAL) {
             Network.sendToServer("packet.switch_chat.update_global_chat_server", { message: message });
-        } else {
+        } else if(type === EChatType.LOCAL) {
             Network.sendToServer("packet.switch_chat.update_local_chat_server", {playerUid: message.user.uuid, message: message});
+        } else {
+            Network.sendToServer("packet.switch_chat.update_shop_chat_server", {message: message});
         };
         return;
     };
@@ -24,6 +26,10 @@ class ChatManager {
         ChatManager.messages.local.push(message);
     };
 
+    public static appendShop(message: Message) {
+        ChatManager.messages.shop.push(message);
+    };
+
     public static getGlobal() {
         return ChatManager.messages.global;
     };
@@ -32,21 +38,37 @@ class ChatManager {
         return ChatManager.messages.local;
     };
 
+    public static getShop() {
+        return ChatManager.messages.shop;
+    }
+
     public static setGlobal(chat: Message[]) {
         ChatManager.messages.global = chat;
     };
 
+    public static setShop(chat: Message[]) {
+        ChatManager.messages.shop = chat;
+    };
+
     public static get(type: EChatType): Message[] {
-        return (type === EChatType.GLOBAL) ? ChatManager.getGlobal() : ChatManager.getLocal();
+        switch(type) {
+            case EChatType.GLOBAL:
+                return ChatManager.getGlobal();
+            case EChatType.LOCAL:
+                return ChatManager.getLocal();
+            case EChatType.SHOP:
+                return ChatManager.getShop();
+        }
     };
 
 };
+
 
 Network.addServerPacket("packet.switch_chat.update_global_chat_server", (client, data: {message: Message}) => {
     client.sendMessage("долетел local server")
 
     ChatManager.appendGlobal(data.message);
-    return Network.sendToAllClients("packet.switch_chat.update_global_chat", {chat: ChatManager.getGlobal()});
+    return Network.sendToAllClients("packet.switch_chat.update_global_chat_client", {chat: ChatManager.getGlobal()});
 });
 
 Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, data: {playerUid: number, message: Message}) => {
@@ -61,22 +83,36 @@ Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, 
     if(!!players) {
         for(const player of players) {
             const newClient = Network.getClientForPlayer(player);
-            newClient && newClient.send("packet.switch_chat.update_local_chat", {message: data.message});
+            newClient && newClient.send("packet.switch_chat.update_local_chat_client", {message: data.message});
         };
     };
     return;
-})
+});
 
-Network.addClientPacket("packet.switch_chat.update_local_chat", (data: {message: Message}) => {
+Network.addServerPacket("packet.switch_chat.update_shop_chat_server", (client, data: {message: Message}) => {
+    client.sendMessage("долетел local server")
+
+    ChatManager.appendShop(data.message);
+    return Network.sendToAllClients("packet.switch_chat.update_shop_chat_client", {chat: ChatManager.getShop()});
+});
+
+Network.addClientPacket("packet.switch_chat.update_local_chat_client", (data: {message: Message}) => {
     alert("Я локал долетел!")
     ChatManager.appendLocal(data.message);
+    ChatScrolling.refresh(EChatType.LOCAL);
+    return;
+});
+
+Network.addClientPacket("packet.switch_chat.update_global_chat_client", (data: {chat: Message[]}) => {
+    alert("Я сервер долетел!")
+    ChatManager.setGlobal(data.chat);
     ChatScrolling.refresh(EChatType.GLOBAL);
     return;
 });
 
-Network.addClientPacket("packet.switch_chat.update_global_chat", (data: {chat: Message[]}) => {
+Network.addClientPacket("packet.switch_chat.update_shop_chat_client", (data: {chat: Message[]}) => {
     alert("Я сервер долетел!")
-    ChatManager.setGlobal(data.chat);
-    ChatScrolling.refresh(EChatType.GLOBAL);
+    ChatManager.setShop(data.chat);
+    ChatScrolling.refresh(EChatType.SHOP);
     return;
 });

@@ -5,7 +5,7 @@ class ChatScrolling {
         return {
             location: {
                 x: 200,
-                y: 65,
+                y: 75,
                 width: 600,
                 height: this.HEIGHT,
                 scrollY: this.HEIGHT + 50,
@@ -30,7 +30,26 @@ class ChatScrolling {
         const messages = ChatManager.get(type);
 
         let translatedChat = Translation.translate("switch_chat.chat");
-        const isGlobalChat = Desktop.isCurrentChatType(EChatType.GLOBAL);
+
+        let headerParams = {
+            color: android.graphics.Color.WHITE,
+            char: "NONE"
+        }
+
+        switch(type) {
+            case EChatType.GLOBAL:
+                headerParams.color = android.graphics.Color.YELLOW;
+                headerParams.char = "G";
+                break;
+            case EChatType.LOCAL:
+                headerParams.color = android.graphics.Color.LTGRAY;
+                headerParams.char = "L";
+                break;
+            case EChatType.SHOP:
+                headerParams.color = android.graphics.Color.GREEN;
+                headerParams.char = "S";
+                break;
+        }
 
         let content = {
             chat: {
@@ -51,14 +70,9 @@ class ChatScrolling {
                 y: 10,
                 font: {
                     size: 30,
-                    color: (() => {
-                        const globalColor = android.graphics.Color.YELLOW;
-                        const localColor = android.graphics.Color.LTGRAY;
-
-                        return isGlobalChat ? globalColor : localColor;
-                    })()
+                    color: headerParams.color
                 },
-                text: isGlobalChat ? "[G]" : "[L]"
+                text: `[${headerParams.char}]`
             }
         } as Record<string, UI.UITextElement | UI.UIButtonElement>;
 
@@ -130,7 +144,7 @@ class ChatScrolling {
 
     public static refresh(type: EChatType = Desktop.currentChatType) {
         if(ChatScrolling.UI.isOpened() && Desktop.isCurrentChatType(type)) {
-            return ChatScrolling.draw(EChatType.GLOBAL, User.get(Player.getLocal()));
+            return ChatScrolling.draw(type, User.get(Player.getLocal()));
         };
     }
 
