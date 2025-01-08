@@ -46,3 +46,8 @@ Translation.addTranslation("switch_chat.chat", {
     en: "Chat",
     ru: "Чат"
 });
+
+Translation.addTranslation("switch_chat.empty", {
+    en: "No messages",
+    ru: "Нет сообщений"
+})

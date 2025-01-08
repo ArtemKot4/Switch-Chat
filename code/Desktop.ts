@@ -3,12 +3,11 @@ class Desktop {
 
     public static getContent = (user: User) => {
 
-        const createButton = (x: number, y: number, type: EChatType): UI.UIButtonElement => {
+        const createButton = (bitmap: string, x: number, y: number, type: EChatType): UI.UIButtonElement => {
             return (
                 {
                     type: "button",
-                    bitmap: "switch_button",
-                    bitmap2: "switch_button_pressed",
+                    bitmap: bitmap,
                     scale: 3.3,
                     x: x,
                     y: y,
@@ -29,8 +28,8 @@ class Desktop {
                 }
             ],
             elements: {
-                button_local: createButton(200, 15, EChatType.LOCAL),
-                button_global: createButton(500, 15, EChatType.GLOBAL),
+                button_local: createButton("switch_local", 200, 15, EChatType.LOCAL),
+                button_global: createButton("switch_global", 500, 15, EChatType.GLOBAL),
                 button_local_icon:  {
                     type: "image",
                     bitmap: "chat_local_icon",
@@ -69,7 +68,7 @@ class Desktop {
         this.UI.close();
         ChatScrolling.UI.close();
         ChatForm.UI.close();
-        ChatButton.open()
+        ChatButton.open();
     };
 
     public static isCurrentChatType<T extends EChatType>(type: T): boolean {
@@ -81,6 +80,7 @@ class Desktop {
 /** ALL IT IS DEBUG
  * 
  */
+
 Callback.addCallback("NativeCommand", (command) => {
     if(command === "/globalchat") {
         Game.prevent();
@@ -90,18 +90,29 @@ Callback.addCallback("NativeCommand", (command) => {
     if(command === "/localchat") {
         Game.prevent();
         Network.sendToServer("test2", {})
-    }
-
+    };
 })
 
 Network.addServerPacket("test1", (client, data) => {
-    for(const message of ChatManager.getGlobal()) {
+    const globalChat = ChatManager.getGlobal();
+
+    if(globalChat.length <= 0) {
+        client.sendMessage(Translation.translate("switch_chat.empty"));
+    };
+
+    for(const message of globalChat) {
         client.sendMessage(message.user.name + " " + message.message)
-    }
+    };
 })
 
 Network.addServerPacket("test2", (client, data) => {
-    for(const message of ChatManager.getLocal()) {
+    const localChat = ChatManager.getLocal();
+
+    if(localChat.length <= 0) {
+        client.sendMessage(Translation.translate("switch_chat.empty"));
+    };
+
+    for(const message of localChat) {
         client.sendMessage(message.user.name + " " + message.message)
-    }
-})
+    };
+});

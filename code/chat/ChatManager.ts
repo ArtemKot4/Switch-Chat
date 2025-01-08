@@ -5,6 +5,7 @@ class ChatManager {
     };
 
     public static send(message: Message, type: EChatType) {
+        alert("ChatManager.send") //debug
         Game.message("клиенты: " + Network.getConnectedClients());
 
         if(type === EChatType.GLOBAL) {
@@ -12,7 +13,6 @@ class ChatManager {
         } else {
             Network.sendToServer("packet.switch_chat.update_local_chat_server", {playerUid: message.user.uuid, message: message});
         };
-        ChatScrolling.refresh(type);
         return;
     };
 
@@ -43,14 +43,14 @@ class ChatManager {
 };
 
 Network.addServerPacket("packet.switch_chat.update_global_chat_server", (client, data: {message: Message}) => {
-    Network.sendServerMessage("долетел local server")
+    client.sendMessage("долетел local server")
 
     ChatManager.appendGlobal(data.message);
     return Network.sendToAllClients("packet.switch_chat.update_global_chat", {chat: ChatManager.getGlobal()});
 });
 
 Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, data: {playerUid: number, message: Message}) => {
-    Network.sendServerMessage("долетел global server")
+    client.sendMessage("долетел global server")
 
     const pos = Entity.getPosition(data.playerUid);
     const source = BlockSource.getDefaultForActor(data.playerUid);
@@ -60,8 +60,8 @@ Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, 
 
     if(!!players) {
         for(const player of players) {
-            const client = Network.getClientForPlayer(player);
-            client && client.send("packet.switch_chat.update_local_chat", {message: data.message});
+            const newClient = Network.getClientForPlayer(player);
+            newClient && newClient.send("packet.switch_chat.update_local_chat", {message: data.message});
         };
     };
     return;
@@ -70,7 +70,6 @@ Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, 
 Network.addClientPacket("packet.switch_chat.update_local_chat", (data: {message: Message}) => {
     alert("Я локал долетел!")
     ChatManager.appendLocal(data.message);
-
     ChatScrolling.refresh(EChatType.GLOBAL);
     return;
 });

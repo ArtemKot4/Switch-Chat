@@ -4,7 +4,7 @@ class ChatForm {
         return {
             location: {
                 x: 200,
-                y: 200 + ChatScrolling.HEIGHT + 60,
+                y: 200 + ChatScrolling.HEIGHT + 90,
                 width: 600,
                 height: 50
             },
@@ -31,7 +31,7 @@ class ChatForm {
                     })(),
                     font: {
                         size: 25,
-                        color: text ? android.graphics.Color.WHITE : android.graphics.Color.argb(255, 31, 31, 31)
+                        color: text && text.length > 0 ? android.graphics.Color.WHITE : android.graphics.Color.argb(255, 31, 31, 31)
                     },
                     clicker: {
                         onClick: (position, vector) => {
