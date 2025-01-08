@@ -1,12 +1,6 @@
 class User {
     public static list: Map<number, User> = new Map();
     protected constructor(public uuid: number, public name: string = Entity.getNameTag(uuid), public prefix?: string) {};
-    
-    public sendMessage(message: string, type: EChatType) {
-        alert("абоба: " + message);
-
-        return ChatManager.send(new Message(this, message), type);
-    };
 
     public properties: Map<string, any> = new Map();
 

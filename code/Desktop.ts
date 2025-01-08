@@ -38,9 +38,9 @@ class Desktop {
                 }
             ],
             elements: {
-                button_local: createButton("L", android.graphics.Color.LTGRAY, 145, EChatType.LOCAL),
-                button_global: createButton("G", android.graphics.Color.YELLOW, 445, EChatType.GLOBAL),
-                button_shop: createButton("S", android.graphics.Color.GREEN, 745, EChatType.SHOP),
+                button_local: createButton("L", android.graphics.Color.LTGRAY, 150, EChatType.LOCAL),
+                button_global: createButton("G", android.graphics.Color.YELLOW, 450, EChatType.GLOBAL),
+                button_shop: createButton("S", android.graphics.Color.GREEN, 750, EChatType.SHOP),
             }  
         } as UI.WindowContent;
     };
@@ -81,16 +81,18 @@ class Desktop {
 Callback.addCallback("NativeCommand", (command) => {
     if(command === "/globalchat") {
         Game.prevent();
-        Network.sendToServer("test1", {})
+        Network.sendToServer("packet.switch_chat.global_chat_command_getter", {})
     };
 
     if(command === "/localchat") {
         Game.prevent();
-        Network.sendToServer("test2", {})
+        for(const message of ChatManager.getLocal()) {
+            Game.message(message.user.name + " " + message.message)
+        };
     };
 })
 
-Network.addServerPacket("test1", (client, data) => {
+Network.addServerPacket("packet.switch_chat.global_chat_command_getter", (client, data) => {
     const globalChat = ChatManager.getGlobal();
 
     if(globalChat.length <= 0) {
@@ -101,15 +103,3 @@ Network.addServerPacket("test1", (client, data) => {
         client.sendMessage(message.user.name + " " + message.message)
     };
 })
-
-Network.addServerPacket("test2", (client, data) => {
-    const localChat = ChatManager.getLocal();
-
-    if(localChat.length <= 0) {
-        client.sendMessage(Translation.translate("switch_chat.empty"));
-    };
-
-    for(const message of localChat) {
-        client.sendMessage(message.user.name + " " + message.message)
-    };
-});

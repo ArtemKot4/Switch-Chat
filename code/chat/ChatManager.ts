@@ -6,8 +6,6 @@ class ChatManager {
     };
 
     public static send(message: Message, type: EChatType) {
-        Game.message("клиенты: " + Network.getConnectedClients());
-
         if(type === EChatType.GLOBAL) {
             Network.sendToServer("packet.switch_chat.update_global_chat_server", { message: message });
         } else if(type === EChatType.LOCAL) {
@@ -90,14 +88,11 @@ Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, 
 });
 
 Network.addServerPacket("packet.switch_chat.update_shop_chat_server", (client, data: {message: Message}) => {
-    client.sendMessage("долетел local server")
-
     ChatManager.appendShop(data.message);
     return Network.sendToAllClients("packet.switch_chat.update_shop_chat_client", {chat: ChatManager.getShop()});
 });
 
 Network.addClientPacket("packet.switch_chat.update_local_chat_client", (data: {message: Message}) => {
-    alert("Я локал долетел!")
     ChatManager.appendLocal(data.message);
     ChatScrolling.refresh(EChatType.LOCAL);
     return;

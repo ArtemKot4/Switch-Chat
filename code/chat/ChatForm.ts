@@ -63,7 +63,7 @@ class ChatForm {
                 },
                 send: {
                     type: "button",
-                    x: 905,
+                    x: 915,
                     y: 15,
                     bitmap: "chat_send_button",
                     bitmap2: "chat_send_button_pressed",
