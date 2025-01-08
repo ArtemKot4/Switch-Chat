@@ -38,8 +38,8 @@ const enum EChatType {
 };
 
 Translation.addTranslation("switch_chat.typing", {
-    en: "Type your message here",
-    ru: "Введите сообщение"
+    en: "Type message...",
+    ru: "Введите сообщение..."
 });
 
 Translation.addTranslation("switch_chat.chat", {

@@ -5,7 +5,7 @@ class ChatScrolling {
         return {
             location: {
                 x: 200,
-                y: 80,
+                y: 65,
                 width: 600,
                 height: this.HEIGHT,
                 scrollY: this.HEIGHT + 50,
@@ -14,6 +14,12 @@ class ChatScrolling {
             drawing: [
                 {
                     type: "background", color: android.graphics.Color.argb(128, 0, 0, 0)
+                },
+                {
+                    type: "frame",
+                    width: 600,
+                    height: this.HEIGHT,
+                    bitmap: "chat_border"
                 }
             ],
             elements: elements || {}

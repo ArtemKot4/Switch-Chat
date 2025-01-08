@@ -28,22 +28,8 @@ class Desktop {
                 }
             ],
             elements: {
-                button_local: createButton("switch_local", 200, 15, EChatType.LOCAL),
-                button_global: createButton("switch_global", 500, 15, EChatType.GLOBAL),
-                button_local_icon:  {
-                    type: "image",
-                    bitmap: "chat_local_icon",
-                    scale: 2,
-                    x: 570,
-                    y: 30,
-                },
-                button_global_icon:  {
-                    type: "image",
-                    bitmap: "chat_global_icon",
-                    scale: 2,
-                    x: 370,
-                    y: 30
-                }
+                button_local: createButton("switch_local", 220, 15, EChatType.LOCAL),
+                button_global: createButton("switch_global", 500, 15, EChatType.GLOBAL)
             }  
         } as UI.WindowContent;
     };
@@ -77,7 +63,7 @@ class Desktop {
 
 };
 
-/** ALL IT IS DEBUG
+/** Debug
  * 
  */
 

@@ -4,7 +4,7 @@ class ChatForm {
         return {
             location: {
                 x: 200,
-                y: 200 + ChatScrolling.HEIGHT + 90,
+                y: 200 + ChatScrolling.HEIGHT + 130,
                 width: 600,
                 height: 50
             },
@@ -47,7 +47,7 @@ class ChatForm {
                 },
                 send: {
                     type: "button",
-                    x: 800,
+                    x: 840,
                     y: 15,
                     bitmap: "chat_send_button",
                     bitmap2: "chat_send_button_pressed",
@@ -58,8 +58,9 @@ class ChatForm {
                                 return;
                             };
                             Game.message(text) //todo: debug;
+                            user.sendMessage(text, Desktop.currentChatType || EChatType.GLOBAL);
                             this.setContent(null, user);
-                            return user.sendMessage(text, Desktop.currentChatType);
+                            return;
                         }
                     }
                 }
