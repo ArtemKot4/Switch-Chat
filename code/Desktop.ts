@@ -13,8 +13,8 @@ class Desktop {
                     y: y,
                     clicker: {
                         onClick: (position, container) => {
-                            ChatScrolling.draw(type, user);
                             this.currentChatType = type;
+                            ChatScrolling.draw(type, user);
                         }
                     }
                 };

@@ -1,52 +1,67 @@
 class ChatScrolling {
     public static UI: UI.Window = new UI.Window()
-    public static getContent = () => {
+    public static getContent = (elements?: UI.ElementSet) => {
         return {
             location: {
                 x: 200,
                 y: 200,
                 width: 600,
                 height: 400,
-                scrollY: 400 + 100,
+                scrollY: 400 + 50,
                 forceScrollY: true
             },
             drawing: [
                 {
                     type: "background", color: android.graphics.Color.argb(128, 0, 0, 0)
                 }
-            ]
+            ],
+            elements: elements || {}
         } as UI.WindowContent;
     };
 
     public static draw(type: EChatType, user: User) {
         const messages = ChatManager.get(type);
 
-        if(messages && messages.length < 0) {
-            return;
-        };
+        let translatedChat = Translation.translate("switch_chat.chat");
+        const isGlobalChat = Desktop.isCurrentChatType(EChatType.GLOBAL);
 
         let content = {
             chat: {
                 type: "text",
-                x: 10,
+                x: 20,
                 y: 10,
-                text: Translation.translate("switch_chat.chat"),
+                text: translatedChat,
+                font: {
+                    size: 30
+                },
                 clicker: {
                     onClick: (position, container) => new KeyboardChat(user, type).open()
                 }
             },
-            chat1: {
+            chat_type: {
                 type: "text",
-                x: 210,
-                y: 210,
-                text: Translation.translate("switch_chat.chat") + "210",
-                clicker: {
-                    onClick: (position, container) => new KeyboardChat(user, type).open()
-                } //TODO: DEBUG
+                x: (translatedChat.length * 20) + 35,
+                y: 10,
+                font: {
+                    size: 30,
+                    color: (() => {
+                        const globalColor = android.graphics.Color.YELLOW;
+                        const localColor = android.graphics.Color.LTGRAY;
+
+                        return isGlobalChat ? globalColor : localColor;
+                    })()
+                },
+                text: isGlobalChat ? "[G]" : "[L]"
             }
         } as Record<string, UI.UITextElement | UI.UIButtonElement>;
 
-        let height = 40;
+        if(messages && messages.length < 0) {
+            this.updateScroll(50);
+            this.update(content);
+            return;
+        };
+
+        let height = 80;
         let lines = 0;
 
         for(const i in messages) {
@@ -58,22 +73,23 @@ class ChatScrolling {
 
             content[user.name + i] = {
                 type: "text",
-                x: 10,
+                x: 20,
                 y: height,
-                text: user.name + (user.prefix ? " " + user.prefix : ""),
-                multiline: true
+                text: `<${user.name}>` + (user.prefix ? " " + user.prefix : "")
             } satisfies UI.UITextElement;
 
             content["message" + i] = {
                 type: "text",
-                x: 10 + ((user.name.length + (user.prefix ? 1 : 0) + user.prefix ? user.prefix.length : 0) * 5) + 10,
+                x: ((user.name + 2 + (user?.prefix || "")).length * 15) + 30,
                 y: height,
                 text: separatedText,
+                font: {
+                    color: android.graphics.Color.LTGRAY,
+                },
                 multiline: true
-                
             } satisfies UI.UITextElement;
 
-            height += 20 + (linesCount * 10);
+            height += 30 + (linesCount * 20);
             lines += linesCount;
         };
 
@@ -81,7 +97,7 @@ class ChatScrolling {
         const count = ChatManager.get(type)?.length || 1;
         
         this.updateScroll((lines * 10) + ((count - 1) * 10));
-        this.update();
+        this.update(content);
         return;
     };
 
@@ -91,9 +107,11 @@ class ChatScrolling {
         return;
     };
 
-    public static update() {
+    public static update(elements: UI.ElementSet) {
         alert("Я обновился! -> " + JSON.stringify(this.UI.content));
-        return this.UI.forceRefresh();
+        this.UI.setContent(this.getContent(elements));
+        this.UI.forceRefresh();
+        return;
     };
 
     public static open(type: EChatType, user: User) {

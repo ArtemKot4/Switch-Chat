@@ -12,10 +12,18 @@ class User {
     };
 
     public set setName(name: string) {
+        if(name.length + this.prefix.length > 16) {
+            Debug.message(`Error! User ${this.name} was tried to change name, but new name is too long.`);
+            return;
+        }
         this.name = name;
     };
 
     public set setPrefix(prefix: string) {
+        if((this.name + prefix).length > 16) {
+            Debug.message(`Error! User ${this.name} was tried to change prefix, but new prefix + name is too long.`);
+            return;
+        }
         this.prefix = prefix;
     };
 

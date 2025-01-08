@@ -12,6 +12,7 @@ Callback.addCallback("ServerPlayerLoaded", (player) => {
     user.sendMessage("Welcome to the world!", EChatType.GLOBAL);
 
     user.sendMessage("Welcome to the local! chat!", EChatType.LOCAL);
+    user.sendMessage("And one message!", EChatType.LOCAL);
 
     Game.message("Локальные сообщения:" + JSON.stringify(ChatManager.get(EChatType.LOCAL)));
     Game.message("Глобальные сообщения:" + JSON.stringify(ChatManager.get(EChatType.GLOBAL)));

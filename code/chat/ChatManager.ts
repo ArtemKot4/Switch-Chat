@@ -6,8 +6,8 @@ class ChatManager {
 
     public static send(message: Message, type: EChatType) {
         if(type === EChatType.GLOBAL) {
-            ChatManager.messages.global.push(message);
-            Network.sendToAllClients("packet.switch_chat.update_global_chat", ChatManager.messages.global)
+            ChatManager.appendGlobal(message);
+            Network.sendToAllClients("packet.switch_chat.update_global_chat", {chat: ChatManager.getGlobal()});
         } else {
             const playerUid = message.user.uuid;
             if(playerUid) {
@@ -25,6 +25,7 @@ class ChatManager {
                 };
             };
         };
+        return;
     };
 
     public static appendGlobal(message: Message) {
@@ -48,7 +49,7 @@ class ChatManager {
     };
 
     public static get(type: EChatType): Message[] {
-        return (type == EChatType.GLOBAL) ? ChatManager.getGlobal() : ChatManager.getLocal();
+        return (type === EChatType.GLOBAL) ? ChatManager.getGlobal() : ChatManager.getLocal();
     };
 
 };
