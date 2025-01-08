@@ -38,9 +38,9 @@ class Desktop {
                 }
             ],
             elements: {
-                button_local: createButton("L", android.graphics.Color.LTGRAY, 150, EChatType.LOCAL),
-                button_global: createButton("G", android.graphics.Color.YELLOW, 450, EChatType.GLOBAL),
-                button_shop: createButton("S", android.graphics.Color.GREEN, 750, EChatType.SHOP),
+                button_local: createButton("L", android.graphics.Color.LTGRAY, 155, EChatType.LOCAL),
+                button_global: createButton("G", android.graphics.Color.YELLOW, 455, EChatType.GLOBAL),
+                button_shop: createButton("S", android.graphics.Color.GREEN, 755, EChatType.SHOP),
             }  
         } as UI.WindowContent;
     };

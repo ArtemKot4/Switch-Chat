@@ -70,8 +70,6 @@ Network.addServerPacket("packet.switch_chat.update_global_chat_server", (client,
 });
 
 Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, data: {playerUid: number, message: Message}) => {
-    client.sendMessage("долетел global server")
-
     const pos = Entity.getPosition(data.playerUid);
     const source = BlockSource.getDefaultForActor(data.playerUid);
     const radius = ConfigManager.localMessageSpreading;
@@ -99,14 +97,12 @@ Network.addClientPacket("packet.switch_chat.update_local_chat_client", (data: {m
 });
 
 Network.addClientPacket("packet.switch_chat.update_global_chat_client", (data: {chat: Message[]}) => {
-    alert("Я сервер долетел!")
     ChatManager.setGlobal(data.chat);
     ChatScrolling.refresh(EChatType.GLOBAL);
     return;
 });
 
 Network.addClientPacket("packet.switch_chat.update_shop_chat_client", (data: {chat: Message[]}) => {
-    alert("Я сервер долетел!")
     ChatManager.setShop(data.chat);
     ChatScrolling.refresh(EChatType.SHOP);
     return;

@@ -1,25 +1,19 @@
 class ChatScrolling {
     public static readonly HEIGHT = 370;
     public static readonly UI: UI.Window = new UI.Window();
-    public static getContent = (elements?: UI.ElementSet) => {
+    public static getContent = (elements?: UI.ElementSet, scroll: number = 0) => {
         return {
             location: {
                 x: 200,
                 y: 75,
                 width: 600,
                 height: this.HEIGHT,
-                scrollY: this.HEIGHT + 50,
+                scrollY: this.HEIGHT + 50 + scroll,
                 forceScrollY: true
             },
             drawing: [
                 {
                     type: "background", color: android.graphics.Color.argb(128, 0, 0, 0)
-                },
-                {
-                    type: "frame",
-                    width: 600,
-                    height: this.HEIGHT,
-                    bitmap: "chat_border"
                 }
             ],
             elements: elements || {}
@@ -77,13 +71,12 @@ class ChatScrolling {
         } as Record<string, UI.UITextElement | UI.UIButtonElement>;
 
         if(messages && messages.length < 0) {
-            this.updateScroll(50);
-            this.update(content);
+            this.update(content, 0);
             return;
         };
 
         let height = 80;
-        let lines = 0;
+        let scroll = 0;
 
         for(const i in messages) {
             const message = messages[i];
@@ -111,25 +104,21 @@ class ChatScrolling {
             } satisfies UI.UITextElement;
 
             height += 30 + (linesCount * 20);
-            lines += linesCount;
+            scroll += 30 + (linesCount * 20);
         };
 
         this.UI.content.elements = content;
         const count = ChatManager.get(type)?.length || 1;
-        
-        this.updateScroll((lines * 10) + ((count - 1) * 10));
-        this.update(content);
+
+        this.update(content, scroll);
         return;
     };
 
-    public static updateScroll(number: number) {
-        this.UI.content.location.scrollY = this.HEIGHT + number;
+
+
+    public static update(elements: UI.ElementSet, scroll: number) {
+        this.UI.setContent(this.getContent(elements, scroll));
         this.UI.updateScrollDimensions();
-        return;
-    };
-
-    public static update(elements: UI.ElementSet) {
-        this.UI.setContent(this.getContent(elements));
         this.UI.forceRefresh();
         return;
     };

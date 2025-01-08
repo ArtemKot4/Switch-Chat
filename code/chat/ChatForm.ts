@@ -17,7 +17,7 @@ class ChatForm {
                 {
                     type: "frame",
                     bitmap: "chat_form",
-                    width: 1100,
+                    width: 1000,
                     height: 60
                 }
             ],
@@ -58,13 +58,13 @@ class ChatForm {
                             keyboard.open();
                         }
                     },
-                    y: 10,
-                    x: 20
+                    y: 15,
+                    x: 15
                 },
                 send: {
                     type: "button",
                     x: 915,
-                    y: 15,
+                    y: 13,
                     bitmap: "chat_send_button",
                     bitmap2: "chat_send_button_pressed",
                     scale: 3.6,
