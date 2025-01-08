@@ -5,7 +5,7 @@ class ChatScrolling {
         return {
             location: {
                 x: 200,
-                y: 70,
+                y: 80,
                 width: 600,
                 height: this.HEIGHT,
                 scrollY: this.HEIGHT + 50,
@@ -121,6 +121,12 @@ class ChatScrolling {
         }
         return;
     };
+
+    public static refresh(type: EChatType = Desktop.currentChatType) {
+        if(ChatScrolling.UI.isOpened() && Desktop.isCurrentChatType(type)) {
+            return ChatScrolling.draw(EChatType.GLOBAL, User.get(Player.getLocal()));
+        };
+    }
 
     static {
         this.UI.setContent(this.getContent());

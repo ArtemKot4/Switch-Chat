@@ -20,7 +20,7 @@ class Desktop {
                     }
                 }
             );
-        }
+        };
 
         return {
             drawing: [
@@ -70,11 +70,38 @@ class Desktop {
         ChatScrolling.UI.close();
         ChatForm.UI.close();
         ChatButton.open()
-    }
+    };
 
     public static isCurrentChatType<T extends EChatType>(type: T): boolean {
         return this.currentChatType === type;
-    }
+    };
 
 };
 
+/** ALL IT IS DEBUG
+ * 
+ */
+Callback.addCallback("NativeCommand", (command) => {
+    if(command === "/globalchat") {
+        Game.prevent();
+        Network.sendToServer("test1", {})
+    };
+
+    if(command === "/localchat") {
+        Game.prevent();
+        Network.sendToServer("test2", {})
+    }
+
+})
+
+Network.addServerPacket("test1", (client, data) => {
+    for(const message of ChatManager.getGlobal()) {
+        client.sendMessage(message.user.name + " " + message.message)
+    }
+})
+
+Network.addServerPacket("test2", (client, data) => {
+    for(const message of ChatManager.getLocal()) {
+        client.sendMessage(message.user.name + " " + message.message)
+    }
+})

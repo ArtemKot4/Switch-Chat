@@ -2,15 +2,15 @@ class ChatButton {
     public static UI = (() => {
         const window = new UI.Window({
             location: {
-                x: UI.getScreenHeight() / 1.3,
-                y: 5,
+                x: UI.getScreenHeight() / 1.25,
+                y: 1,
                 width: 70,
                 height: 70
             },
             drawing: [
                 {
                     type: "background",
-                    color: android.graphics.Color.argb(0, 0, 0, 0),
+                    color: android.graphics.Color.argb(0, 0, 0, 0)
                 }
             ],
             elements: {

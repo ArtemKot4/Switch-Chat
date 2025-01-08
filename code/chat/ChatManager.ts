@@ -5,11 +5,15 @@ class ChatManager {
     };
 
     public static send(message: Message, type: EChatType) {
+        Game.message("клиенты: " + Network.getConnectedClients());
+
         if(type === EChatType.GLOBAL) {
-            return Network.sendToServer("packet.switch_chat.update_global_chat_server", { message })
+            Network.sendToServer("packet.switch_chat.update_global_chat_server", { message: message });
         } else {
-            return Network.sendToServer("packet.switch_chat.update_local_chat_server", {playerUid: message.user.uuid, message});
+            Network.sendToServer("packet.switch_chat.update_local_chat_server", {playerUid: message.user.uuid, message: message});
         };
+        ChatScrolling.refresh(type);
+        return;
     };
 
     public static appendGlobal(message: Message) {
@@ -39,11 +43,15 @@ class ChatManager {
 };
 
 Network.addServerPacket("packet.switch_chat.update_global_chat_server", (client, data: {message: Message}) => {
+    Network.sendServerMessage("долетел local server")
+
     ChatManager.appendGlobal(data.message);
     return Network.sendToAllClients("packet.switch_chat.update_global_chat", {chat: ChatManager.getGlobal()});
 });
 
 Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, data: {playerUid: number, message: Message}) => {
+    Network.sendServerMessage("долетел global server")
+
     const pos = Entity.getPosition(data.playerUid);
     const source = BlockSource.getDefaultForActor(data.playerUid);
     const radius = ConfigManager.localMessageSpreading;
@@ -63,20 +71,13 @@ Network.addClientPacket("packet.switch_chat.update_local_chat", (data: {message:
     alert("Я локал долетел!")
     ChatManager.appendLocal(data.message);
 
-    if(ChatScrolling.UI.isOpened() && Desktop.isCurrentChatType(EChatType.LOCAL)) {
-        ChatScrolling.draw(EChatType.LOCAL, User.get(Player.getLocal()));
-        alert("Я обновился!")
-    };
+    ChatScrolling.refresh(EChatType.GLOBAL);
     return;
 });
 
 Network.addClientPacket("packet.switch_chat.update_global_chat", (data: {chat: Message[]}) => {
     alert("Я сервер долетел!")
     ChatManager.setGlobal(data.chat);
-
-    if(ChatScrolling.UI.isOpened() && Desktop.isCurrentChatType(EChatType.GLOBAL)) {
-        ChatScrolling.draw(EChatType.GLOBAL, User.get(Player.getLocal()));
-        alert("Я обновился!")
-    };
+    ChatScrolling.refresh(EChatType.GLOBAL);
     return;
 });
