@@ -6,7 +6,7 @@ class Message {
     public metadata!: Map<string, any>;
 
     public addMetadata<T>(key: string, value: T) {
-        this.metadata = new Map();
+        this.metadata ??= new Map();
         this.metadata.set(key, value);
     };
 
