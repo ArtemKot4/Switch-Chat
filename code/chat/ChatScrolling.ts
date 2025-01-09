@@ -107,7 +107,7 @@ class ChatScrolling {
 
             content["message" + i] = {
                 type: "text",
-                x: ((current_user.name + 2 + (current_user.prefix ? current_user.prefix.name : "")).length * 15) + 25,
+                x: ((current_user.name + 2 + (current_user.prefix ? current_user.prefix.name : "")).length * 15) + 30,
                 y: height,
                 text: separatedText,
                 font: {
