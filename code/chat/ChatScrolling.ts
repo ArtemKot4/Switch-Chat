@@ -149,7 +149,7 @@ class ChatScrolling {
 
             content[current_user.name + i] = messageContent.name
 
-            if(current_user.prefix && current_user.prefix.name) {
+            if(messageContent.prefix) {
                 content[current_user.name + i + "_prefix"] = messageContent.prefix
             };   
 

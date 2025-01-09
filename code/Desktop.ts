@@ -1,8 +1,6 @@
 class Desktop {
     public static currentChatType = EChatType.GLOBAL;
 
-
-
     public static getContent = (user: User) => {
 
         const onClick = (type: EChatType) => {
@@ -48,6 +46,10 @@ class Desktop {
         ChatScrolling.open(this.currentChatType, user);
         ChatForm.open(user);
     };
+
+    public static isOpened() {
+        return (this.UI.isOpened() && ChatScrolling.UI.isOpened() && ChatForm.UI.isOpened());
+    }
 
     public static close() {
         this.UI.close();
