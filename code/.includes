@@ -6,6 +6,7 @@ chat/ChatManager.ts
 User.ts
 chat/ChatButton.ts
 chat/ChatScrolling.ts
+chat/ChatNotification.ts
 
 Desktop.ts
 

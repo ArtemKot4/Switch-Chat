@@ -1,6 +1,57 @@
 class ChatScrolling {
     public static readonly HEIGHT = 370;
     public static readonly UI: UI.Window = new UI.Window();
+
+    public static genMessageContent(height: number, type: EChatType, message: Message, user: User): {
+        name: UI.UITextElement,
+        prefix?: UI.UITextElement,
+        message: UI.UITextElement
+    } {
+        const separatedText = Utils.separateMessage(message);
+        const isDeleted = Message.isDeleted(message);
+        const current_user = message.user;
+
+        const content = {
+            name: {
+                type: "text",
+                x: 20,
+                y: height,
+                text: `<${current_user.name}>`
+            },
+            message: {
+                type: "text",
+                x: ((current_user.name + 2 + (current_user.prefix ? current_user.prefix.name : "")).length * 15) + 30,
+                y: height,
+                text: separatedText,
+                font: {
+                    color: (() => {
+                        if(current_user.uuid === user.uuid) {
+                            return android.graphics.Color.GREEN;
+                        };
+
+                        return isDeleted ? android.graphics.Color.GRAY : android.graphics.Color.LTGRAY;
+                    })()
+                },
+                multiline: true
+            }
+        } satisfies Record<string, UI.UITextElement>;
+
+        if(user.prefix && user.prefix.name || isDeleted) {
+            content["prefix"] = {
+                type: "text",
+                x: ((current_user.name + 1).length * 15) + 20,
+                y: height,
+                text: isDeleted ? "[DELETED]" : current_user.prefix.name,
+                font: {
+                    color: isDeleted ? android.graphics.Color.RED : current_user.prefix.color 
+                }
+            };
+            
+        };
+
+        return content;
+    };
+
     public static getContent = (elements?: UI.ElementSet, scroll: number = 0) => {
         return {
             location: {
@@ -20,11 +71,7 @@ class ChatScrolling {
         } as UI.WindowContent;
     };
 
-    public static draw(type: EChatType, user: User) {
-        const messages = ChatManager.get(type);
-
-        let translatedChat = Translation.translate("switch_chat.chat");
-
+    public static genChatTypeButtonContent(type: EChatType, x: number, y: number, onClick?: () => void) {
         let headerParams = {
             color: android.graphics.Color.WHITE,
             char: "NONE"
@@ -45,6 +92,28 @@ class ChatScrolling {
                 break;
         };
 
+        return {
+            type: "text",
+            x: x,
+            y: y,
+            font: {
+                size: 30,
+                color: headerParams.color
+            },
+            text: `[${headerParams.char}]`,
+            ...(onClick && {
+                clicker: {
+                    onClick: (position, container) => onClick()
+                }}
+            )
+        }
+    };
+
+    public static draw(type: EChatType, user: User) {
+        const messages = ChatManager.get(type);
+
+        let translatedChat = Translation.translate("switch_chat.chat");
+
         let content = {
             chat: {
                 type: "text",
@@ -58,16 +127,7 @@ class ChatScrolling {
                     onClick: (position, container) => Desktop.close()
                 }
             },
-            chat_type: {
-                type: "text",
-                x: (translatedChat.length * 20) + 35,
-                y: 10,
-                font: {
-                    size: 30,
-                    color: headerParams.color
-                },
-                text: `[${headerParams.char}]`
-            }
+            chat_type: this.genChatTypeButtonContent(type, (translatedChat.length * 20) + 35, 10)
         } as Record<string, UI.UITextElement | UI.UIButtonElement>;
 
         if(messages && messages.length < 0) {
@@ -84,43 +144,16 @@ class ChatScrolling {
             const current_user = message.user;
             const separatedText = Utils.separateMessage(message);
             const linesCount = separatedText.split("\n").length || 1;
-            const isDeleted = Message.isDeleted(message);
 
-            content[current_user.name + i] = {
-                type: "text",
-                x: 20,
-                y: height,
-                text: `<${current_user.name}>`
-            } satisfies UI.UITextElement;
+            const messageContent = ChatScrolling.genMessageContent(height, type, message, user);
+
+            content[current_user.name + i] = messageContent.name
 
             if(current_user.prefix && current_user.prefix.name) {
-                content[current_user.name + i + "_prefix"] = {
-                    type: "text",
-                    x: ((current_user.name + 1).length * 15) + 20,
-                    y: height,
-                    text: isDeleted ? "[DELETED]" : current_user.prefix.name,
-                    font: {
-                        color: isDeleted ? android.graphics.Color.RED : current_user.prefix.color 
-                    }
-                }
+                content[current_user.name + i + "_prefix"] = messageContent.prefix
             };   
 
-            content["message" + i] = {
-                type: "text",
-                x: ((current_user.name + 2 + (current_user.prefix ? current_user.prefix.name : "")).length * 15) + 30,
-                y: height,
-                text: separatedText,
-                font: {
-                    color: (() => {
-                        if(current_user.uuid === user.uuid) {
-                            return android.graphics.Color.GREEN;
-                        };
-
-                        return isDeleted ? android.graphics.Color.GRAY : android.graphics.Color.LTGRAY;
-                    })()
-                },
-                multiline: true
-            } satisfies UI.UITextElement;
+            content["message" + i] = messageContent.message;
 
             if(user.uuid === current_user.uuid) {
                 content["delete" + i] = {

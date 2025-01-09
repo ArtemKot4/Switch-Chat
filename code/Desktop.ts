@@ -1,28 +1,16 @@
 class Desktop {
     public static currentChatType = EChatType.GLOBAL;
 
+
+
     public static getContent = (user: User) => {
 
-        const createButton = (char: string, color: number, x: number, type: EChatType): UI.UITextElement => {
-            return (
-                {
-                    type: "text",
-                    x: x,
-                    y: 20,
-                    text: `[${char}]`,
-                    font: {
-                        size: 30,
-                        color: color
-                    },
-                    clicker: {
-                        onClick(position, container) {
-                            Desktop.currentChatType = type;
-                            ChatScrolling.draw(type, user);
-                            return;
-                        }
-                    }
-                }
-            );
+        const onClick = (type: EChatType) => {
+            return () => {
+                Desktop.currentChatType = type;
+                ChatScrolling.draw(type, user);
+                return;
+            }
         };
 
         return {
@@ -38,9 +26,9 @@ class Desktop {
                 }
             ],
             elements: {
-                button_local: createButton("L", android.graphics.Color.LTGRAY, 155, EChatType.LOCAL),
-                button_global: createButton("G", android.graphics.Color.YELLOW, 455, EChatType.GLOBAL),
-                button_shop: createButton("S", android.graphics.Color.GREEN, 755, EChatType.SHOP),
+                button_local: ChatScrolling.genChatTypeButtonContent(EChatType.LOCAL, 165, 20, onClick(EChatType.LOCAL)),
+                button_global: ChatScrolling.genChatTypeButtonContent(EChatType.GLOBAL, 465, 20, onClick(EChatType.GLOBAL)),
+                button_shop: ChatScrolling.genChatTypeButtonContent(EChatType.SHOP, 765, 20, onClick(EChatType.SHOP)),
             }  
         } as UI.WindowContent;
     };
