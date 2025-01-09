@@ -10,31 +10,31 @@ class User {
         this.prefix = prefix;
     };
 
-    public properties: Map<string, any> = new Map();
+    public properties: Record<string, any> = {};
 
-    public addProperty<T>(name: string, value: T) {
-        this.properties.set(name, value);
+    public static addProperty<T>(user: User, name: string, value: T) {
+        user.properties.set(name, value);
     };
 
-    public setName(name: string) {
-        if(name.length + (this.prefix ? this.prefix.name : "").length > 16) {
+    public static setName(user: User, name: string) {
+        if(name.length + (user.prefix ? user.prefix.name : "").length > 16) {
             Debug.message(`Error! User ${this.name} was tried to change name, but new name is too long.`);
             return;
         }
-        this.name = name;
+        user.name = name;
     };
 
-    public setPrefix(prefix: string, color = android.graphics.Color.LTGRAY) {
-        if((this.name + prefix).length > 16) {
+    public static setPrefix(user: User, prefix: string, color = android.graphics.Color.LTGRAY) {
+        if((user.name + prefix).length > 16) {
             Debug.message(`Error! User ${this.name} was tried to change prefix, but new prefix + name is too long.`);
             return;
         }
-        this.prefix = {name: prefix, color: color};
+        user.prefix = {name: prefix, color: color};
     };
 
-    public changeUUID(uuid: number) {
+    public static changeUUID(user: User, uuid: number) {
         if(new PlayerActor(uuid).isValid()) {
-            this.uuid = uuid;
+            user.uuid = uuid;
         } else {
             Debug.message(`Error! User ${this.name} was tried to change uuid, but player with new uuid is not valid. If it is wrong error, please join player to game and try again.`)
         }
@@ -60,7 +60,11 @@ class User {
         }
     };
     
-    public static get = (uuid: number): User => User.list.get(uuid);
+    public static get = (uuid: number): User => {
+        User.add(uuid, Entity.getNameTag(uuid));
+        return User.list.get(uuid);
+    };
+    
     public static add = (uuid: number, name: string = Entity.getNameTag(uuid), prefix?: typeof User.prototype.prefix): void => {
         if(!User.list.has(uuid)) {
             User.list.set(uuid, new User(uuid, name, prefix));

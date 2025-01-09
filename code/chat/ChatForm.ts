@@ -74,11 +74,7 @@ class ChatForm {
                                 ChatForm.setContent(null, user);
                                 return;
                             };
-
-                            Game.message(text) //todo: debug;
-
                             ChatManager.send(new Message(user, text), Desktop.currentChatType ?? EChatType.GLOBAL);
-                            
                             ChatForm.setContent(null, user);
                             return;
                         }

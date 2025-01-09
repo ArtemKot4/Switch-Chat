@@ -6,14 +6,14 @@ class ChatManager {
     };
 
     public static send(message: Message, type: EChatType) {
-        if(type === EChatType.GLOBAL) {
-            Network.sendToServer("packet.switch_chat.update_global_chat_server", { message: message });
-        } else if(type === EChatType.LOCAL) {
-            Network.sendToServer("packet.switch_chat.update_local_chat_server", {playerUid: message.user.uuid, message: message});
-        } else {
-            Network.sendToServer("packet.switch_chat.update_shop_chat_server", {message: message});
+        switch(type) {
+            case EChatType.GLOBAL:
+                return Network.sendToServer("packet.switch_chat.update_global_chat_server", { message: message });
+            case EChatType.LOCAL:
+                return Network.sendToServer("packet.switch_chat.update_local_chat_server", { message: message});
+            case EChatType.SHOP:
+                return Network.sendToServer("packet.switch_chat.update_shop_chat_server", {message: message});
         };
-        return;
     };
 
     public static appendGlobal(message: Message) {
@@ -84,22 +84,27 @@ class ChatManager {
 };
 
 
-Network.addServerPacket("packet.switch_chat.update_global_chat_server", (client, data: {message: Message}) => {
+Network.addServerPacket("packet.switch_chat.update_global_chat_server", (client, data: { message: Message }) => {
     ChatManager.appendGlobal(data.message);
-    return Network.sendToAllClients("packet.switch_chat.update_global_chat_client", {chat: ChatManager.getGlobal()});
+    Network.sendToAllClients("packet.switch_chat.update_global_chat_client", {chat: ChatManager.getGlobal(), user: User.get(client.getPlayerUid()) });
+    return;
 });
 
-Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, data: {playerUid: number, message: Message}) => {
-    const pos = Entity.getPosition(data.playerUid);
-    const source = BlockSource.getDefaultForActor(data.playerUid);
+Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, data: { message: Message }) => {
+    if(!client) return;
+
+    const playerUid = client.getPlayerUid()
+    
+    const pos = Entity.getPosition(playerUid);
+    const source = BlockSource.getDefaultForActor(playerUid);
     const radius = ConfigManager.localMessageSpreading;
     const players = source.listEntitiesInAABB(pos.x - radius, pos.y - radius / 2, pos.z - radius, pos.x + radius, pos.y + radius / 2, pos.z + radius, EEntityType.PLAYER, false)
-    .filter(v => Entity.getType(v) === Native.EntityType.PLAYER) || [client.getPlayerUid()];
+    .filter(v => Entity.getType(v) === Native.EntityType.PLAYER) || [playerUid];
 
     if(!!players) {
         for(const player of players) {
             const newClient = Network.getClientForPlayer(player);
-            newClient && newClient.send("packet.switch_chat.update_local_chat_client", {message: data.message});
+            newClient && newClient.send("packet.switch_chat.update_local_chat_client", { message: data.message, user: User.get(playerUid) });
         };
     };
     return;
@@ -107,23 +112,24 @@ Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, 
 
 Network.addServerPacket("packet.switch_chat.update_shop_chat_server", (client, data: {message: Message}) => {
     ChatManager.appendShop(data.message);
-    return Network.sendToAllClients("packet.switch_chat.update_shop_chat_client", {chat: ChatManager.getShop()});
+    Network.sendToAllClients("packet.switch_chat.update_shop_chat_client", {chat: ChatManager.getShop(), user: User.get(client.getPlayerUid()) });
+    return;
 });
 
-Network.addClientPacket("packet.switch_chat.update_local_chat_client", (data: {message: Message}) => {
+Network.addClientPacket("packet.switch_chat.update_local_chat_client", (data: {message: Message, user: User }) => {
     ChatManager.appendLocal(data.message);
-    ChatScrolling.refresh(EChatType.LOCAL);
+    ChatScrolling.refresh(EChatType.LOCAL, data.user);
     return;
 });
 
-Network.addClientPacket("packet.switch_chat.update_global_chat_client", (data: {chat: Message[]}) => {
+Network.addClientPacket("packet.switch_chat.update_global_chat_client", (data: {chat: Message[], user: User }) => {
     ChatManager.setGlobal(data.chat);
-    ChatScrolling.refresh(EChatType.GLOBAL);
+    ChatScrolling.refresh(EChatType.GLOBAL, data.user);
     return;
 });
 
-Network.addClientPacket("packet.switch_chat.update_shop_chat_client", (data: {chat: Message[]}) => {
+Network.addClientPacket("packet.switch_chat.update_shop_chat_client", (data: {chat: Message[], user: User }) => {
     ChatManager.setShop(data.chat);
-    ChatScrolling.refresh(EChatType.SHOP);
+    ChatScrolling.refresh(EChatType.SHOP, data.user);
     return;
 });

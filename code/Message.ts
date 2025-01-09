@@ -1,20 +1,19 @@
 class Message {
     constructor(public user: User, public message: string) {
-        this.setParams();
+        Message.setParams(this);
     };
 
-    public metadata!: Map<string, any>;
+    public metadata: Record<string, any> = {};
 
-    public addMetadata<T>(key: string, value: T) {
-        this.metadata ??= new Map();
-        this.metadata.set(key, value);
+    public static addMetadata<T>(message: Message, key: string, value: T) {
+        message.metadata[key] = value;
     };
 
-    public setParams() {
+    public static setParams(message: Message) {
         const links = [];
         const hashtags = [];
 
-        for(const word of this.message.split(" ")) {
+        for(const word of message.message.split(" ")) {
             if(word.length <= 1) continue;
 
             if(word.startsWith("@")) {
@@ -30,11 +29,11 @@ class Message {
             }
         };
 
-        !!links && this.addMetadata("links", links);
-        !!hashtags && this.addMetadata("hashtags", hashtags);
+        !!links && Message.addMetadata(message, "links", links);
+        !!hashtags && Message.addMetadata(message, "hashtags", hashtags);
     };
 
-    public isDeleted(): boolean {
-        return this.metadata?.get("deleted") ?? false;
+    public static isDeleted(message: Message): boolean {
+        return (message.metadata && message.message["deleted"]) ?? false;
     }
 }

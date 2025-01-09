@@ -43,7 +43,7 @@ class ChatScrolling {
                 headerParams.color = android.graphics.Color.GREEN;
                 headerParams.char = "S";
                 break;
-        }
+        };
 
         let content = {
             chat: {
@@ -84,7 +84,7 @@ class ChatScrolling {
             const current_user = message.user;
             const separatedText = Utils.separateMessage(message);
             const linesCount = separatedText.split("\n").length || 1;
-            const isDeleted = message.isDeleted();
+            const isDeleted = Message.isDeleted(message);
 
             content[current_user.name + i] = {
                 type: "text",
@@ -96,7 +96,7 @@ class ChatScrolling {
             if(current_user.prefix && current_user.prefix.name) {
                 content[current_user.name + i + "_prefix"] = {
                     type: "text",
-                    x: ((current_user.name + 2).length * 15) + 30,
+                    x: ((current_user.name + 1).length * 15) + 20,
                     y: height,
                     text: isDeleted ? "[DELETED]" : current_user.prefix.name,
                     font: {
@@ -107,7 +107,7 @@ class ChatScrolling {
 
             content["message" + i] = {
                 type: "text",
-                x: ((current_user.name + 2 + (current_user.prefix ? current_user.prefix.name : "")).length * 15) + 30,
+                x: ((current_user.name + 2 + (current_user.prefix ? current_user.prefix.name : "")).length * 15) + 25,
                 y: height,
                 text: separatedText,
                 font: {
@@ -124,17 +124,21 @@ class ChatScrolling {
 
             if(user.uuid === current_user.uuid) {
                 content["delete" + i] = {
-                    type: "button",
-                    x: 200,
+                    type: "text",
+                    x: 900,
                     y: height,
-                    button: "message_delete_button",
+                    scale: 1.3,
+                    text: "-",
+                    font: {
+                        size: 25
+                    },
                     clicker: {
                         onClick(position, container) {
                             Network.sendToServer("packet.switch_chat.delete_message_server", { user: user, index: Number(i), type: type });
                             return;
                         },
                     }
-                } satisfies UI.UIButtonElement;
+                } satisfies UI.UITextElement;
             }
             
 
@@ -165,9 +169,9 @@ class ChatScrolling {
         return;
     };
 
-    public static refresh(type: EChatType = Desktop.currentChatType) {
+    public static refresh(type: EChatType = Desktop.currentChatType, user?: User) {
         if(ChatScrolling.UI.isOpened() && Desktop.isCurrentChatType(type)) {
-            return ChatScrolling.draw(type, User.get(Player.getLocal()));
+            return ChatScrolling.draw(type, user || User.get(Player.getLocal()));
         };
     }
 
@@ -202,7 +206,7 @@ Network.addClientPacket("packet.switch_chat.delete_message_client", (data: {
     if(!actor.isOperator()) {
         ChatManager.set(data.type, data.chat)
     } else {
-        ChatManager.get(data.type)[data.index].addMetadata("deleted", true);
+        Message.addMetadata(ChatManager.get(data.type)[data.index], "deleted", true);
     };
 
     ChatScrolling.refresh(data.type);
