@@ -33,4 +33,8 @@ class Message {
         !!links && this.addMetadata("links", links);
         !!hashtags && this.addMetadata("hashtags", hashtags);
     };
+
+    public isDeleted(): boolean {
+        return this.metadata?.get("deleted") ?? false;
+    }
 }

@@ -40,6 +40,10 @@ class ChatManager {
         return ChatManager.messages.shop;
     }
 
+    public static setLocal(chat: Message[]) {
+        ChatManager.messages.local = chat;
+    };
+
     public static setGlobal(chat: Message[]) {
         ChatManager.messages.global = chat;
     };
@@ -47,6 +51,24 @@ class ChatManager {
     public static setShop(chat: Message[]) {
         ChatManager.messages.shop = chat;
     };
+
+    public static set(type: EChatType, chat: Message[]) {
+        switch(type) {
+            case EChatType.GLOBAL:
+                return ChatManager.setGlobal(chat);
+            case EChatType.LOCAL:
+                return ChatManager.setLocal(chat);
+            case EChatType.SHOP:
+                return ChatManager.setShop(chat);
+        }
+    }
+
+    public static delete(index: number, type: EChatType): Message[] {
+        const chat = ChatManager.get(type);
+
+        chat.splice(index, 1);
+        return chat;
+    }
 
     public static get(type: EChatType): Message[] {
         switch(type) {
@@ -63,8 +85,6 @@ class ChatManager {
 
 
 Network.addServerPacket("packet.switch_chat.update_global_chat_server", (client, data: {message: Message}) => {
-    client.sendMessage("долетел local server")
-
     ChatManager.appendGlobal(data.message);
     return Network.sendToAllClients("packet.switch_chat.update_global_chat_client", {chat: ChatManager.getGlobal()});
 });

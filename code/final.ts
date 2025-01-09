@@ -1,5 +1,8 @@
 Callback.addCallback("ServerPlayerLoaded", (player) => {
-    User.add(player);
+    User.add(player, "Artem Kot", {
+        name: "[КОТ]",
+        color: android.graphics.Color.RED
+    });
 
     const client = Network.getClientForPlayer(player);
 

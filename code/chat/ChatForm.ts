@@ -5,9 +5,11 @@ class ChatForm {
         return {
             location: {
                 x: 200,
-                y: 200 + ChatScrolling.HEIGHT + 130,
                 width: 600,
-                height: 50
+                height: 50,
+                padding: {
+                    bottom: 10
+                }
             },
             drawing: [
                 {
@@ -98,3 +100,4 @@ class ChatForm {
         this.UI.open();
     };
 };
+
