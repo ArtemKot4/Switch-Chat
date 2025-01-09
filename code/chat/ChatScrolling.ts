@@ -111,7 +111,13 @@ class ChatScrolling {
                 y: height,
                 text: separatedText,
                 font: {
-                    color: isDeleted ? android.graphics.Color.GRAY : android.graphics.Color.LTGRAY,
+                    color: (() => {
+                        if(current_user.uuid === user.uuid) {
+                            return android.graphics.Color.GREEN;
+                        };
+
+                        return isDeleted ? android.graphics.Color.GRAY : android.graphics.Color.LTGRAY;
+                    })()
                 },
                 multiline: true
             } satisfies UI.UITextElement;
@@ -137,7 +143,6 @@ class ChatScrolling {
         };
 
         this.UI.content.elements = content;
-        const count = ChatManager.get(type)?.length || 1;
 
         this.update(content, scroll);
         return;

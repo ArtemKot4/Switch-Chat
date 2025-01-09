@@ -69,8 +69,8 @@ class User {
 
 };
 
-Saver.addSavesScope("scope.switch_chat.user_list", function read(scope: { list: typeof User.list }) {
-    User.list = scope ? scope.list : User.list;
-}, function save() {
-    return { list: User.list };
-});
+// Saver.addSavesScope("scope.switch_chat.user_list", function read(scope: { list: typeof User.list }) {
+//     User.list = scope ? scope.list : new Map();
+// }, function save() {
+//     return { list: User.list };
+// });
