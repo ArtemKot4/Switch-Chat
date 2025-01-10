@@ -12,12 +12,12 @@ namespace ConfigManager {
 };
 
 namespace Utils {
-    export function separateText(text: string) {
+    export function separateText(text: string, radius: number) {
         let result = [];
         let line = "";
     
         for (let word of text.split(" ")) {
-            if (line.length + word.length <= 55) {
+            if (line.length + word.length <= radius) {
                 line += word + " ";
             } else {
                 result.push(line.trim());
@@ -36,7 +36,8 @@ namespace Utils {
 const enum EChatType {
     GLOBAL,
     LOCAL,
-    SHOP
+    SHOP,
+    MIXED
 };
 
 Translation.addTranslation("switch_chat.typing", {
@@ -57,4 +58,4 @@ Translation.addTranslation("switch_chat.empty", {
 Translation.addTranslation("switch_chat.empty_chat", {
     en: "I guess, chat is empty. Press first message!",
     ru: "Кажется, тут пусто. Отправьте первое сообщение!"
-})
+});

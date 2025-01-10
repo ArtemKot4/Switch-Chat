@@ -35,5 +35,9 @@ class Message {
 
     public static isDeleted(message: Message): boolean {
         return (message.metadata && message.message["deleted"]) ?? false;
+    };
+
+    public static getMetadata<T>(message: Message, key: string): Nullable<T> {
+        return (message.metadata && message.metadata[key]) ?? null;
     }
-}
+};

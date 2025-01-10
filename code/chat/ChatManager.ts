@@ -2,7 +2,8 @@ class ChatManager {
     private static messages = {
         global: [] as Message[],
         local: [] as Message[],
-        shop: [] as Message[]
+        shop: [] as Message[],
+        mixed: [] as Message[]
     };
 
     public static send(message: Message, type: EChatType) {
@@ -13,6 +14,8 @@ class ChatManager {
                 return Network.sendToServer("packet.switch_chat.update_local_chat_server", { message: message});
             case EChatType.SHOP:
                 return Network.sendToServer("packet.switch_chat.update_shop_chat_server", {message: message});
+            case EChatType.MIXED:
+                return Network.sendToServer("packet.switch_chat.update_mixed_chat_server", {message: message});
         };
     };
 
@@ -23,6 +26,13 @@ class ChatManager {
     public static appendLocal(message: Message) {
         ChatManager.messages.local.push(message);
     };
+
+    public static appendMixed(message: Message, type: EChatType) {
+        let copy = new Message(message.user, message.message);
+        Message.addMetadata(copy, "type", type);
+
+        ChatManager.messages.mixed.push(copy);
+    }
 
     public static appendShop(message: Message) {
         ChatManager.messages.shop.push(message);
@@ -35,6 +45,10 @@ class ChatManager {
     public static getLocal() {
         return ChatManager.messages.local;
     };
+
+    public static getMixed() {
+        return ChatManager.messages.mixed;
+    }
 
     public static getShop() {
         return ChatManager.messages.shop;
@@ -76,6 +90,8 @@ class ChatManager {
                 return ChatManager.getGlobal();
             case EChatType.LOCAL:
                 return ChatManager.getLocal();
+            case EChatType.MIXED:
+                return ChatManager.getMixed();
             case EChatType.SHOP:
                 return ChatManager.getShop();
         }
@@ -116,20 +132,35 @@ Network.addServerPacket("packet.switch_chat.update_shop_chat_server", (client, d
     return;
 });
 
+Network.addServerPacket("packet.switch_chat.update_mixed_chat_server", (client, data: {message: Message}) => {
+    Network.sendToAllClients("packet.switch_chat.update_mixed_chat_client", {message: data.message, user: User.get(client.getPlayerUid()) });
+    return;
+});
+
+
 Network.addClientPacket("packet.switch_chat.update_local_chat_client", (data: {message: Message, user: User }) => {
+    ChatManager.appendMixed(data.message, EChatType.LOCAL);
     ChatManager.appendLocal(data.message);
     ChatScrolling.refresh(EChatType.LOCAL, data.user);
     return;
 });
 
 Network.addClientPacket("packet.switch_chat.update_global_chat_client", (data: {chat: Message[], user: User }) => {
+    ChatManager.appendMixed(data.chat[data.chat.length - 1], EChatType.GLOBAL);
     ChatManager.setGlobal(data.chat);
     ChatScrolling.refresh(EChatType.GLOBAL, data.user);
     return;
 });
 
 Network.addClientPacket("packet.switch_chat.update_shop_chat_client", (data: {chat: Message[], user: User }) => {
+    ChatManager.appendMixed(data.chat[data.chat.length - 1], EChatType.SHOP);
     ChatManager.setShop(data.chat);
     ChatScrolling.refresh(EChatType.SHOP, data.user);
+    return;
+});
+
+Network.addClientPacket("packet.switch_chat.update_mixed_chat_client", (data: {message: Message, user: User }) => {
+    ChatManager.appendMixed(data.message, EChatType.MIXED);
+    ChatScrolling.refresh(EChatType.MIXED, data.user);
     return;
 });

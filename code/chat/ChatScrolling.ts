@@ -1,14 +1,27 @@
+type typeButtonProps = {
+    type: EChatType;
+    x: number;
+    y: number;
+    scale: number;
+};
+
+interface IMessagePositionProps {
+    y: number;
+    type_button?: typeButtonProps
+}
+
 class ChatScrolling {
     public static readonly HEIGHT = 370;
     public static readonly UI: UI.Window = new UI.Window();
 
-    public static getMessageContent(height: number, message: Message, user: User, type?: EChatType): {
+    public static getMessageContent(message: Message, user: User, {y, type_button}: IMessagePositionProps): {
         name: UI.UITextElement,
         prefix?: UI.UITextElement,
         message: UI.UITextElement,
-        type?: UI.UITextElement
+        type_button?: UI.UITextElement,
+        lines: number
     } {
-        const separatedText = Utils.separateText(message.message);
+        const separatedText = Utils.separateText(message.message, 40);
         const isDeleted = Message.isDeleted(message);
         const current_user = message.user;
 
@@ -16,13 +29,13 @@ class ChatScrolling {
             name: {
                 type: "text",
                 x: 20,
-                y: height,
+                y: y,
                 text: `<${current_user.name}>`
             },
             message: {
                 type: "text",
                 x: ((current_user.name + 2 + (current_user.prefix ? current_user.prefix.name : "")).length * 15) + 30,
-                y: height,
+                y: y,
                 text: separatedText,
                 font: {
                     color: (() => {
@@ -34,14 +47,15 @@ class ChatScrolling {
                     })()
                 },
                 multiline: true
-            }
-        } satisfies Record<string, UI.UITextElement>;
+            },
+            lines: separatedText.split("\n").length || 1
+        } satisfies Record<string, UI.UITextElement | number>;
 
         if(user.prefix && user.prefix.name || isDeleted) {
             content["prefix"] = {
                 type: "text",
                 x: ((current_user.name + 1).length * 15) + 20,
-                y: height,
+                y: y,
                 text: isDeleted ? "[DELETED]" : current_user.prefix.name,
                 font: {
                     color: isDeleted ? android.graphics.Color.RED : current_user.prefix.color 
@@ -49,13 +63,13 @@ class ChatScrolling {
             };
         };
 
-        if(type) {
-            content["type"] = this.getButtonSwitchContent(type, 600, height, () => {
-                Desktop.changeCurrentChatType(type);
+        if(type_button) {
+            content["type_button"] = this.getButtonSwitchContent(type_button, () => {
+                Desktop.changeCurrentChatType(type_button.type);
                 Desktop.openFor(user);
                 return;
             });
-        }
+        };
 
         return content;
     };
@@ -79,13 +93,13 @@ class ChatScrolling {
         } as UI.WindowContent;
     };
 
-    public static getButtonSwitchContent(type: EChatType, x: number, y: number, onClick?: () => void) {
+    public static getButtonSwitchContent(description: typeButtonProps, onClick?: () => void) {
         let headerParams = {
             color: android.graphics.Color.WHITE,
             char: "NONE"
-        }
+        };
 
-        switch(type) {
+        switch(description.type) {
             case EChatType.GLOBAL:
                 headerParams.color = android.graphics.Color.YELLOW;
                 headerParams.char = "G";
@@ -93,6 +107,10 @@ class ChatScrolling {
             case EChatType.LOCAL:
                 headerParams.color = android.graphics.Color.LTGRAY;
                 headerParams.char = "L";
+                break;
+            case EChatType.MIXED:
+                headerParams.color = android.graphics.Color.CYAN;
+                headerParams.char = "M";
                 break;
             case EChatType.SHOP:
                 headerParams.color = android.graphics.Color.GREEN;
@@ -102,10 +120,10 @@ class ChatScrolling {
 
         return {
             type: "text",
-            x: x,
-            y: y,
+            x: description.x,
+            y: description.y,
             font: {
-                size: 30,
+                size: description.scale,
                 color: headerParams.color
             },
             text: `[${headerParams.char}]`,
@@ -135,15 +153,20 @@ class ChatScrolling {
                     onClick: (position, container) => Desktop.close()
                 }
             },
-            chat_type: this.getButtonSwitchContent(type, (translatedChat.length * 20) + 35, 10)
+            chat_type: this.getButtonSwitchContent({
+                type,
+                x: (translatedChat.length * 20) + 35,
+                y: 10,
+                scale: 30
+            })
         } as Record<string, UI.UITextElement | UI.UIButtonElement>;
 
-        if(messages && messages.length < 0) {
+        if(messages && messages.length <= 0) {
             content["message_empty"] = {
                 type: "text",
                 x: 20,
                 y: 80,
-                text: Utils.separateText(Translation.translate("switch_chat.empty_chat")),
+                text: Translation.translate("switch_chat.empty_chat"),
                 font: {
                     color: android.graphics.Color.GRAY
                 },
@@ -160,10 +183,20 @@ class ChatScrolling {
             const message = messages[i];
 
             const current_user = message.user;
-            const separatedText = Utils.separateText(message.message);
-            const linesCount = separatedText.split("\n").length || 1;
-
-            const messageContent = ChatScrolling.getMessageContent(height, message, user);
+            const message_type = Message.getMetadata<EChatType>(message, "type");
+            const messageContent = ChatScrolling.getMessageContent(message, user, {
+                y: height,
+                ...(typeof message_type === "number" && 
+                    { type_button: 
+                        {
+                            type: message_type,
+                            x: 930,
+                            y: height,
+                            scale: 20
+                        }
+                    }
+                )
+            });
 
             content["name_" + i] = messageContent.name
 
@@ -171,12 +204,16 @@ class ChatScrolling {
                 content["prefix_" + i] = messageContent.prefix
             };   
 
+            if(messageContent.type_button) {
+                content["type_" + i] = messageContent.type_button;
+            };
+
             content["message_" + i] = messageContent.message;
 
             if(user.uuid === current_user.uuid) {
-                content["delete" + i] = {
+                content["delete_" + i] = {
                     type: "text",
-                    x: 900,
+                    x: 890,
                     y: height,
                     scale: 1.3,
                     text: "-",
@@ -192,8 +229,8 @@ class ChatScrolling {
                 } satisfies UI.UITextElement;
             };
 
-            height += 30 + (linesCount * 20);
-            scroll += 30 + (linesCount * 20);
+            height += 30 + (messageContent.lines * 20);
+            scroll += 30 + (messageContent.lines * 20);
         };
 
         this.UI.content.elements = content;
@@ -233,14 +270,14 @@ Network.addServerPacket("packet.switch_chat.delete_message_server", (client, dat
     index: number;
     type: EChatType;
 }) => {
-    ChatManager.delete(data.index, data.type)
-
     Network.sendToAllClients("packet.switch_chat.delete_message_client", {
         index: data.index,
         user: data.user,
         type: data.type,
         chat: ChatManager.get(data.type)
     });
+    
+    ChatManager.delete(data.index, data.type)
 });
 
 Network.addClientPacket("packet.switch_chat.delete_message_client", (data: {
@@ -253,8 +290,9 @@ Network.addClientPacket("packet.switch_chat.delete_message_client", (data: {
 
     if(!actor.isOperator()) {
         ChatManager.set(data.type, data.chat)
+        ChatManager.delete(data.index, data.type);
     } else {
-        Message.addMetadata(ChatManager.get(data.type)[data.index], "deleted", true);
+        Message.addMetadata(data.chat[data.index], "deleted", true);
     };
 
     ChatScrolling.refresh(data.type);

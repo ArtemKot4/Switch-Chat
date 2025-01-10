@@ -22,9 +22,30 @@ class ChatSwitch {
                 }
             ],
             elements: {
-                button_local: ChatScrolling.getButtonSwitchContent(EChatType.LOCAL, 165, 20, onClick(EChatType.LOCAL)),
-                button_global: ChatScrolling.getButtonSwitchContent(EChatType.GLOBAL, 465, 20, onClick(EChatType.GLOBAL)),
-                button_shop: ChatScrolling.getButtonSwitchContent(EChatType.SHOP, 765, 20, onClick(EChatType.SHOP)),
+                button_local: ChatScrolling.getButtonSwitchContent({
+                    type:  EChatType.LOCAL,
+                    x: 165,
+                    y: 20,
+                    scale: 30
+                }, onClick(EChatType.LOCAL)),
+                button_global: ChatScrolling.getButtonSwitchContent({
+                    type: EChatType.GLOBAL,
+                    x: 365,
+                    y: 20,
+                    scale: 30
+                }, onClick(EChatType.GLOBAL)),
+                button_shop: ChatScrolling.getButtonSwitchContent({
+                    type: EChatType.SHOP,
+                    x: 565,
+                    y: 20,
+                    scale: 30
+                }, onClick(EChatType.SHOP)),
+                button_mixed: ChatScrolling.getButtonSwitchContent({
+                    type: EChatType.MIXED,
+                    x: 765,
+                    y: 20,
+                    scale: 30
+                }, onClick(EChatType.MIXED))
             }  
         } as UI.WindowContent;
     };

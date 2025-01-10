@@ -32,9 +32,17 @@ class ChatNotification {
 
         for(const i in this.messages) {
             const current_message = this.messages[i];
-            const separatedText = Utils.separateText(current_message.message);
+            const separatedText = Utils.separateText(current_message.message, 40);
             const linesCount = separatedText.split("\n").length || 1;
-            const messageContent = ChatScrolling.getMessageContent(height, current_message, current_message.user, type);
+            const messageContent = ChatScrolling.getMessageContent(current_message, current_message.user, {
+                y: height,
+                type_button: {
+                    type,
+                    x: 600,
+                    y: height,
+                    scale: 20
+                }
+            });
 
             content.elements["name_" + i] = messageContent.message;
 
@@ -44,7 +52,7 @@ class ChatNotification {
             
             content.elements["message_" + i] = messageContent.message;
 
-            content.elements["type_" + i] = messageContent.type;
+            content.elements["type_" + i] = messageContent.type_button;
 
             height += 30 + (linesCount * 20);
         };
@@ -76,7 +84,7 @@ class ChatNotification {
                 if(this.timer <= 0 && this.alpha >= 0) {
                     java.lang.Thread.sleep(2);
                     this.UI.layout.setAlpha(this.alpha -= 0.5);
-                    
+
                     if(this.alpha <= 0) {
                         this.isActive = false;
                         this.UI.layout.setAlpha(1);
