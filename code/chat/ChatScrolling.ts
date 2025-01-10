@@ -2,12 +2,13 @@ class ChatScrolling {
     public static readonly HEIGHT = 370;
     public static readonly UI: UI.Window = new UI.Window();
 
-    public static genMessageContent(height: number, type: EChatType, message: Message, user: User): {
+    public static getMessageContent(height: number, message: Message, user: User, type?: EChatType): {
         name: UI.UITextElement,
         prefix?: UI.UITextElement,
-        message: UI.UITextElement
+        message: UI.UITextElement,
+        type?: UI.UITextElement
     } {
-        const separatedText = Utils.separateMessage(message);
+        const separatedText = Utils.separateText(message.message);
         const isDeleted = Message.isDeleted(message);
         const current_user = message.user;
 
@@ -46,8 +47,15 @@ class ChatScrolling {
                     color: isDeleted ? android.graphics.Color.RED : current_user.prefix.color 
                 }
             };
-            
         };
+
+        if(type) {
+            content["type"] = this.getButtonSwitchContent(type, 600, height, () => {
+                Desktop.changeCurrentChatType(type);
+                Desktop.openFor(user);
+                return;
+            });
+        }
 
         return content;
     };
@@ -71,7 +79,7 @@ class ChatScrolling {
         } as UI.WindowContent;
     };
 
-    public static genChatTypeButtonContent(type: EChatType, x: number, y: number, onClick?: () => void) {
+    public static getButtonSwitchContent(type: EChatType, x: number, y: number, onClick?: () => void) {
         let headerParams = {
             color: android.graphics.Color.WHITE,
             char: "NONE"
@@ -127,10 +135,20 @@ class ChatScrolling {
                     onClick: (position, container) => Desktop.close()
                 }
             },
-            chat_type: this.genChatTypeButtonContent(type, (translatedChat.length * 20) + 35, 10)
+            chat_type: this.getButtonSwitchContent(type, (translatedChat.length * 20) + 35, 10)
         } as Record<string, UI.UITextElement | UI.UIButtonElement>;
 
         if(messages && messages.length < 0) {
+            content["message_empty"] = {
+                type: "text",
+                x: 20,
+                y: 80,
+                text: Utils.separateText(Translation.translate("switch_chat.empty_chat")),
+                font: {
+                    color: android.graphics.Color.GRAY
+                },
+                multiline: true
+            }
             this.update(content, 0);
             return;
         };
@@ -142,18 +160,18 @@ class ChatScrolling {
             const message = messages[i];
 
             const current_user = message.user;
-            const separatedText = Utils.separateMessage(message);
+            const separatedText = Utils.separateText(message.message);
             const linesCount = separatedText.split("\n").length || 1;
 
-            const messageContent = ChatScrolling.genMessageContent(height, type, message, user);
+            const messageContent = ChatScrolling.getMessageContent(height, message, user);
 
-            content[current_user.name + i] = messageContent.name
+            content["name_" + i] = messageContent.name
 
             if(messageContent.prefix) {
-                content[current_user.name + i + "_prefix"] = messageContent.prefix
+                content["prefix_" + i] = messageContent.prefix
             };   
 
-            content["message" + i] = messageContent.message;
+            content["message_" + i] = messageContent.message;
 
             if(user.uuid === current_user.uuid) {
                 content["delete" + i] = {
@@ -172,8 +190,7 @@ class ChatScrolling {
                         },
                     }
                 } satisfies UI.UITextElement;
-            }
-            
+            };
 
             height += 30 + (linesCount * 20);
             scroll += 30 + (linesCount * 20);
@@ -184,8 +201,6 @@ class ChatScrolling {
         this.update(content, scroll);
         return;
     };
-
-
 
     public static update(elements: UI.ElementSet, scroll: number) {
         this.UI.setContent(this.getContent(elements, scroll));

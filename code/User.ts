@@ -1,5 +1,5 @@
 class User {
-    public static list: Map<number, User> = new Map();
+    protected static list: Record<number, User> = {};
     public uuid: number;
     public name: string;
     public prefix?: {name: string, color: number};
@@ -49,32 +49,54 @@ class User {
     public static has = (uuid: string | number): boolean => {
         if(typeof uuid === "string") {
             let userName = uuid;
-            for(const user of User.list.values()) {
-                if(user.name === userName) {
+            for(const i in User.list) {
+                if(User.list[i].name === userName) {
                     return true;
                 }
             };
             return false; 
         } else {
-            return User.list.has(uuid);
+            return uuid in User.list;
         }
     };
     
     public static get = (uuid: number): User => {
-        User.add(uuid, Entity.getNameTag(uuid));
-        return User.list.get(uuid);
+        if(!(uuid in User.list)) {
+            User.add(uuid, Entity.getNameTag(uuid));
+        };
+        return User.list[uuid];
     };
     
     public static add = (uuid: number, name: string = Entity.getNameTag(uuid), prefix?: typeof User.prototype.prefix): void => {
-        if(!User.list.has(uuid)) {
-            User.list.set(uuid, new User(uuid, name, prefix));
-        };
+         if(uuid in User.list) {
+            return;
+            // const oldData = User.list[uuid];
+            // User.list[uuid] = {...oldData, uuid, ...((prefix || oldData.prefix) && {prefix: prefix || oldData.prefix})} ;
+        } else {
+            User.list[uuid] = new User(uuid, name, prefix);
+        }
     };
+
+    public static setList(users: Record<number, User>): void {
+        User.list = users;
+    };
+
+    public static getList() {
+        return User.list;
+    };
+
+    public static addChat(user: User, user2: User): void {
+        user.chatList[user2.uuid] = [];
+    };
+
+    public static sendMessage(user: User, user2: User) {
+        //...
+    }
 
 };
 
-// Saver.addSavesScope("scope.switch_chat.user_list", function read(scope: { list: typeof User.list }) {
-//     User.list = scope ? scope.list : new Map();
-// }, function save() {
-//     return { list: User.list };
-// });
+Saver.addSavesScope("scope.switch_chat.user_list", function read(scope: { list: Record<number, User> }) {
+    User.setList(scope ? scope.list : {});
+}, function save() {
+    return { list: User.getList() };
+});

@@ -15,6 +15,16 @@
         "en": "Count of blocks, where in radius player gets local message",
         "ru": "Количество блоков, в радиусе которых игроки получат локальное сообщение"
       }
+    },
+    "enable_submit_form": {
+      "name": {
+        "en": "Add submit form",
+        "ru": "Добавить кнопку отправки"
+      },
+      "description": {
+        "en": "If enabled, messages sends after press special submit button in form.",
+        "ru": "Если активно, сообщения отправляются после нажатия специальной кнопки отправки формы"
+      }
     }
   }
 }

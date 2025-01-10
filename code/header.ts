@@ -8,14 +8,15 @@ const getPlayerUidByName = (name: string) => {
 
 namespace ConfigManager {
     export const localMessageSpreading = __config__.getInteger("local_message_spreading") || 100;
+    export const isEnabledForm = __config__.getBool("enable_submit_form") || false;
 };
 
 namespace Utils {
-    export function separateMessage(message: Message) {
+    export function separateText(text: string) {
         let result = [];
         let line = "";
     
-        for (let word of message.message.split(" ")) {
+        for (let word of text.split(" ")) {
             if (line.length + word.length <= 55) {
                 line += word + " ";
             } else {
@@ -51,4 +52,9 @@ Translation.addTranslation("switch_chat.chat", {
 Translation.addTranslation("switch_chat.empty", {
     en: "No messages",
     ru: "Нет сообщений"
+});
+
+Translation.addTranslation("switch_chat.empty_chat", {
+    en: "I guess, chat is empty. Press first message!",
+    ru: "Кажется, тут пусто. Отправьте первое сообщение!"
 })

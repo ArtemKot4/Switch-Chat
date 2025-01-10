@@ -1,4 +1,5 @@
 {
     "enabled": true,
-    "local_message_spreading": 100
+    "local_message_spreading": 100,
+    "enable_submit_form": false
 }
