@@ -7,12 +7,13 @@ Callback.addCallback("ServerPlayerLoaded", (playerUid) => {
         client.send("packet.switch_chat.update_global_chat_client", {chat: ChatManager.getGlobal()});
         client.send("packet.switch_chat.update_shop_chat_client", {chat: ChatManager.getShop()});
 
-        const modifiedUsers = [].concat(User.getList()).map((v: User) => {
-            v.chatList = {[playerUid]: []};
-            return v;
-        });
+        const users = {...User.getList()};
 
-        client.send("packet.switch_chat.set_user_list", {users: modifiedUsers});
+        for(const i in users) {
+            users[i].chatList = {[playerUid]: users[i].chatList[playerUid] || []};
+        };
+
+        client.send("packet.switch_chat.set_user_list", {users: users});
     };
 
 });
@@ -30,7 +31,7 @@ Callback.addCallback("ServerPlayerLoaded", (playerUid) => {
 // });
 
 Network.addClientPacket("packet.switch_chat.set_user_list", (data: {
-    users: User[]
+    users: Record<number, User>
 }) => {
     User.setList(data.users);
 });
