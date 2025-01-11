@@ -83,9 +83,18 @@ Callback.addCallback("NativeCommand", (command) => {
                 };
 
             } else {
-                Game.message("Not enought arguments!")
+                const message = Translation.translate("command.not_enough_arguments")
+                .replace("%s", current.require_count.toString())
+                .replace("%d", current.arguments.length.toString());
+
+                Game.message(Native.Color.RED + message)
                 Game.prevent();
             };
         };
     };
 });
+
+Translation.addTranslation("command.not_enough_arguments", {
+    en: "Not enough arguments. You need %s arguments, but you gave %d",
+    ru: "Недостаточно аргументов. Вам нужно %s аргументов, но вы предоставили %d",
+})
