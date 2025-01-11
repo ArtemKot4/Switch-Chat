@@ -30,7 +30,10 @@ abstract class ServerCommand<T extends Object> extends Command {
         this.buildPacket();
     };
 
-    public onClient?(data: T): void
+    public onClient(data: T): void {
+        return null;
+    };
+
     abstract onServer(client: NetworkClient, data: T): void;
     abstract onServer(client: NetworkClient);
 
