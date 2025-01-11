@@ -10,6 +10,7 @@ namespace ConfigManager {
     export const localMessageSpreading = __config__.getInteger("local_message_spreading") || 100;
     export const isEnabledForm = __config__.getBool("enable_submit_form") || false;
     export const isSpecialMixedChat = __config__.getBool("enable_special_options_mixed_chat") || false;
+    export const isEnabledSwitch = __config__.getBool("enable_switch_chat") || true;
 };
 
 namespace Utils {

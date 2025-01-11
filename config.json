@@ -2,5 +2,6 @@
     "enabled": true,
     "local_message_spreading": 200,
     "enable_submit_form": false,
-    "enable_special_options_mixed_chat": true
+    "enable_special_options_mixed_chat": true,
+    "enable_switch_chat": false
 }

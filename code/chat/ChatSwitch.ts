@@ -1,5 +1,6 @@
 class ChatSwitch {
     public static getContent = (user: User) => {
+        const isSwitch = ConfigManager.isEnabledSwitch;
 
         const onClick = (type: EChatType) => {
             return () => {
@@ -22,27 +23,29 @@ class ChatSwitch {
                 }
             ],
             elements: {
-                button_local: ChatScrolling.getButtonSwitchContent({
-                    type:  EChatType.LOCAL,
-                    x: 165,
-                    y: 20,
-                    scale: 30
-                }, onClick(EChatType.LOCAL)),
-                button_global: ChatScrolling.getButtonSwitchContent({
-                    type: EChatType.GLOBAL,
-                    x: 365,
-                    y: 20,
-                    scale: 30
-                }, onClick(EChatType.GLOBAL)),
-                button_shop: ChatScrolling.getButtonSwitchContent({
-                    type: EChatType.SHOP,
-                    x: 565,
-                    y: 20,
-                    scale: 30
-                }, onClick(EChatType.SHOP)),
+                ...(isSwitch && {
+                    button_local: ChatScrolling.getButtonSwitchContent({
+                        type:  EChatType.LOCAL,
+                        x: 165,
+                        y: 20,
+                        scale: 30
+                    }, onClick(EChatType.LOCAL)),
+                    button_global: ChatScrolling.getButtonSwitchContent({
+                        type: EChatType.GLOBAL,
+                        x: 365,
+                        y: 20,
+                        scale: 30
+                    }, onClick(EChatType.GLOBAL)),
+                    button_shop: ChatScrolling.getButtonSwitchContent({
+                        type: EChatType.SHOP,
+                        x: 565,
+                        y: 20,
+                        scale: 30
+                    }, onClick(EChatType.SHOP)),
+                }),
                 button_mixed: ChatScrolling.getButtonSwitchContent({
                     type: EChatType.MIXED,
-                    x: 765,
+                    x: isSwitch ? 765 : 465,
                     y: 20,
                     scale: 30
                 }, onClick(EChatType.MIXED))

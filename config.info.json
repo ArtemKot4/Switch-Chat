@@ -35,6 +35,16 @@
         "en": "If enabled, word, contain different signs: ?, ₽, ₿, ¢, ¥, €, $, £, or contains words \"buy\" or \"sell\", will send your message from mixed chat to shop chat, but messages, starts with \"!\" sign, will send your message to global chat, in this time messages, starts with \">\" sign, will send in local chat",
         "ru": "Если активно, слова, начинающиеся с символов: ?, ₽, ₿, ¢, ¥, €, $, £, или содержащие слова \"куплю\" или \"продам\", будут отправлены из смешанного чата в торговый чат, а сообщения, начинающиеся с знака \"!\", будут отправлены в глобальный чат, в то же время сообщения, начинающиеся с знака \">\", будут отправлены в локальный чат"
       }
+    },
+    "enable_switch_chat": {
+      "name": {
+        "en": "Separate to switch chat",
+        "ru": "Разделение чатов"
+      },
+      "description": {
+        "en": "If enabled, chat will separates to 4 state: global, local, shop, mixed; mixed otherwise",
+        "ru": "Если активно, чат разделяется на 4 вида: глобальный, локальный, торговый, смешанный, иначе только смешанный вид"
+      }
     }
   }
 }
