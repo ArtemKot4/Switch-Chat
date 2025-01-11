@@ -159,7 +159,7 @@ class ChatScrolling {
                 text: translatedChat,
                 font: {
                     size: 30,
-                    color: android.graphics.Color.GRAY
+                    color: android.graphics.Color.WHITE
                 },
                 clicker: {
                     onClick: (position, container) => Desktop.close()
