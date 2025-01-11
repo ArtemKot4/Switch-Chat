@@ -41,13 +41,26 @@ class ChatManager {
                             }
                         });
                     };
-                };
+
+                    if(this.hasLocalSign(message)) {
+                        return Network.sendToServer("packet.switch_chat.update_local_chat_server", {
+                            message: {
+                                ...message,
+                                message: message.message.slice(1)
+                            }
+                        });
+                    };
+                }   
 
                 return Network.sendToServer("packet.switch_chat.update_mixed_chat_server", {
                     message: message
                 });
             };  
         };
+    };
+
+    public static hasLocalSign(message: Message): boolean {
+        return message.message.startsWith(">");
     };
 
     public static hasImportantSign(message: Message): boolean {

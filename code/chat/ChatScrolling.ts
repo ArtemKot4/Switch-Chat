@@ -15,7 +15,8 @@ interface IMessageContent {
     prefix?: UI.UITextElement,
     message: UI.UITextElement,
     type_button?: UI.UITextElement,
-    lines: number
+    lines: number,
+    isDeleted: boolean
 }
 
 class ChatScrolling {
@@ -23,7 +24,7 @@ class ChatScrolling {
     public static readonly UI: UI.Window = new UI.Window();
 
     public static getMessageContent(message: Message, user: User, {y, type_button}: IMessagePositionProps): IMessageContent {
-        const separatedText = Utils.separateText(message.message, 40);
+        const separatedText = Utils.separateText(message.message, 28);
         const isDeleted = Message.isDeleted(message);
         const current_user = message.user;
 
@@ -50,8 +51,9 @@ class ChatScrolling {
                 },
                 multiline: true
             },
-            lines: separatedText.split("\n").length || 1
-        } satisfies Record<string, UI.UITextElement | number>;
+            lines: separatedText.split("\n").length || 1,
+            isDeleted: isDeleted
+        } satisfies Record<string, UI.UITextElement | number | boolean>;
 
         if(user.prefix && user.prefix.name || isDeleted) {
             content["prefix"] = {
@@ -141,7 +143,7 @@ class ChatScrolling {
                     onClick: (position, container) => onClick()
                 }}
             )
-        }
+        };
     };
 
     public static draw(type: EChatType, user: User): void {
@@ -156,7 +158,8 @@ class ChatScrolling {
                 y: 10,
                 text: translatedChat,
                 font: {
-                    size: 30
+                    size: 30,
+                    color: android.graphics.Color.GRAY
                 },
                 clicker: {
                     onClick: (position, container) => Desktop.close()
@@ -168,7 +171,7 @@ class ChatScrolling {
                 y: 10,
                 scale: 30
             })
-        } as Record<string, UI.UITextElement | UI.UIButtonElement>;
+        } satisfies Record<string, UI.UITextElement>;
 
         if(messages && messages.length <= 0) {
             content["message_empty"] = {
@@ -224,10 +227,9 @@ class ChatScrolling {
                     type: "text",
                     x: 890,
                     y: height,
-                    scale: 1.3,
                     text: "-",
                     font: {
-                        size: 25
+                        size: 30
                     },
                     clicker: {
                         onClick(position, container) {
@@ -266,7 +268,7 @@ class ChatScrolling {
     public static refresh(type: EChatType = Desktop.currentChatType, user?: User): void {
         const isMixedType = Desktop.isCurrentChatType(EChatType.MIXED);
 
-        if(ChatScrolling.UI.isOpened() && Desktop.isCurrentChatType(type) || isMixedType) {
+        if(ChatScrolling.UI.isOpened() && isMixedType || Desktop.isCurrentChatType(type)) {
             return ChatScrolling.draw(isMixedType ? EChatType.MIXED : type, user || User.get(Player.getLocal()));
         };
     }
@@ -285,7 +287,8 @@ Network.addServerPacket("packet.switch_chat.delete_message_server", (client, dat
         index: data.index,
         user: data.user,
         type: data.type,
-        chat: ChatManager.get(data.type)
+        chat: ChatManager.get(data.type),
+        isOperator: new PlayerActor(data.user.uuid).isOperator()
     });
     
     ChatManager.delete(data.index, data.type)
@@ -296,10 +299,10 @@ Network.addClientPacket("packet.switch_chat.delete_message_client", (data: {
     type: EChatType,
     chat: Message[],
     index: number;
+    isOperator: boolean;
 }) => {
-    const actor = new PlayerActor(data.user.uuid);
 
-    if(!actor.isOperator()) {
+    if(data.isOperator) {
         ChatManager.set(data.type, data.chat)
         ChatManager.delete(data.index, data.type);
     } else {

@@ -32,8 +32,8 @@
         "ru": "Специальные возможности смешанного чата"
       },
       "description": {
-        "en": "If enabled, word, contain different signs: ?, ₽, ₿, ¢, ¥, €, $, £, or contains words \"buy\" or \"sell\", will send your message from mixed chat to shop chat, but messages, starts with \"!\" sign, will send your message to global chat",
-        "ru": "Если активно, слова, начинающиеся с символов: ?, ₽, ₿, ¢, ¥, €, $, £, или содержащие слова \"куплю\" или \"продам\", будут отправлены из смешанного чата в торговый чат, а сообщения, начинающиеся с знака \"!\", будут отправлены в глобальный чат"
+        "en": "If enabled, word, contain different signs: ?, ₽, ₿, ¢, ¥, €, $, £, or contains words \"buy\" or \"sell\", will send your message from mixed chat to shop chat, but messages, starts with \"!\" sign, will send your message to global chat, in this time messages, starts with \">\" sign, will send in local chat",
+        "ru": "Если активно, слова, начинающиеся с символов: ?, ₽, ₿, ¢, ¥, €, $, £, или содержащие слова \"куплю\" или \"продам\", будут отправлены из смешанного чата в торговый чат, а сообщения, начинающиеся с знака \"!\", будут отправлены в глобальный чат, в то же время сообщения, начинающиеся с знака \">\", будут отправлены в локальный чат"
       }
     }
   }
