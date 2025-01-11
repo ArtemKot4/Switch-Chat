@@ -1,5 +1,5 @@
 class Desktop {
-    public static currentChatType = EChatType.GLOBAL;
+    public static currentChatType = EChatType.MIXED;
 
     public static openFor(user: User): void {
         ChatSwitch.UI.setContent(ChatSwitch.getContent(user));
@@ -59,4 +59,5 @@ Network.addServerPacket("packet.switch_chat.global_chat_command_getter", (client
     for(const message of globalChat) {
         client.sendMessage(message.user.name + " " + message.message)
     };
-})
+});
+
