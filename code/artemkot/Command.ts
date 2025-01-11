@@ -1,7 +1,3 @@
-interface ICommandPacketProps {
-    arguments: Record<string, unknown>;
-};
-
 abstract class Command {
     public static list: Record<string, Command> = {};
 
@@ -19,35 +15,43 @@ abstract class Command {
 
 };
 
-abstract class ClientCommand extends Command {
+abstract class ClientCommand<T extends Object> extends Command {
     constructor(caller: string, args?: string[], require_count?: number) {
         super(caller, args, require_count)
     };
 
-    abstract onCall(data: Record<string, unknown>): void;
+    abstract onCall(data: T): void;
+    abstract onCall(): void;
 };
 
-abstract class ServerCommand extends Command {
+abstract class ServerCommand<T extends Object> extends Command {
     constructor(caller: string, args?: string[], require_count?: number) {
         super(caller, args, require_count);
         this.buildPacket();
     };
 
-    abstract onClient(data: ICommandPacketProps): void
-    abstract onServer(client: NetworkClient, data: ICommandPacketProps): void;
+    public onClient?(data: T): void
+    abstract onServer(client: NetworkClient, data: T): void;
+    abstract onServer(client: NetworkClient);
 
-    public buildPacket() {
+    public buildPacket(): void {
         Network.addClientPacket("packet.command.client." + this.caller, this.onClient.bind(this));
         Network.addServerPacket("packet.command.server." + this.caller, this.onServer.bind(this));
     };
 
-    public sendToClient(client: NetworkClient, data: ICommandPacketProps) {
+    public sendToClient(client: NetworkClient, data: T): void {
         if(client) {
             client.send("packet.command.client." + this.caller, data);
         };
     };
 
-    public sendToAllClients(data: ICommandPacketProps) {
+    public sendMessageToClient(client: NetworkClient, message: string): void {
+        if(client) {
+            client.sendMessage(Translation.translate(message));
+        };
+    }
+
+    public sendToAllClients(data: T): void {
         Network.sendToAllClients("packet.command.client." + this.caller, data);
     };
 };
@@ -71,9 +75,7 @@ Callback.addCallback("NativeCommand", (command) => {
                 }, {});
 
                 if(current instanceof ServerCommand) {
-                    Network.sendToServer("packet.command.server." + current.caller, {
-                        arguments: arguments 
-                    });
+                    Network.sendToServer("packet.command.server." + current.caller, arguments);
                     return;
                 };
 
@@ -97,4 +99,4 @@ Callback.addCallback("NativeCommand", (command) => {
 Translation.addTranslation("command.not_enough_arguments", {
     en: "Not enough arguments. You need %s arguments, but you gave %d",
     ru: "Недостаточно аргументов. Вам нужно %s аргументов, но вы предоставили %d",
-})
+});
