@@ -9,9 +9,14 @@ const getPlayerUidByName = (name: string) => {
 namespace ConfigManager {
     export const localMessageSpreading = __config__.getInteger("local_message_spreading") || 100;
     export const isEnabledForm = __config__.getBool("enable_submit_form") || false;
+    export const isSpecialMixedChat = __config__.getBool("enable_special_options_mixed_chat") || false;
 };
 
 namespace Utils {
+
+    export const shopSigns: string[] = ["₽","₿","¢","¥","€","$","£","?"];
+    export const shopKeywords: string[] = ["buy", "sell", "куплю", "продам"]
+
     export function separateText(text: string, radius: number) {
         let result = [];
         let line = "";

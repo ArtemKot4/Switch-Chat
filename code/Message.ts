@@ -1,7 +1,5 @@
 class Message {
-    constructor(public user: User, public message: string) {
-        Message.setParams(this);
-    };
+    constructor(public user: User, public message: string) {};
 
     public metadata: Record<string, any> = {};
 
@@ -10,10 +8,13 @@ class Message {
     };
 
     public static setParams(message: Message) {
+        const word_array = message.message.split(" ");
+
         const links = [];
         const hashtags = [];
-
-        for(const word of message.message.split(" ")) {
+        
+        for(const i in word_array) {
+            const word = word_array[i];
             if(word.length <= 1) continue;
 
             if(word.startsWith("@")) {
@@ -29,12 +30,12 @@ class Message {
             }
         };
 
-        !!links && Message.addMetadata(message, "links", links);
-        !!hashtags && Message.addMetadata(message, "hashtags", hashtags);
+        if(!!links) Message.addMetadata(message, "links", links);
+        if(!!hashtags) Message.addMetadata(message, "hashtags", hashtags);
     };
 
     public static isDeleted(message: Message): boolean {
-        return (message.metadata && message.message["deleted"]) ?? false;
+        return Message.getMetadata(message, "deleted") ?? false
     };
 
     public static getMetadata<T>(message: Message, key: string): Nullable<T> {

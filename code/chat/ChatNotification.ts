@@ -1,8 +1,8 @@
 class ChatNotification {
     public static UI: UI.Window = new UI.Window();
-    public static timer = 5;
-    public static isActive = true;
-    public static alpha = 1;
+    public static timer: number = 5;
+    public static isActive: boolean = true;
+    public static alpha: number = 1;
     public static messages: Message[] = [];
 
     public static getContent(user: User, message: Message, type: EChatType): UI.WindowContent {
@@ -62,7 +62,7 @@ class ChatNotification {
         return content;
     };
 
-    public static setAnimation() {
+    public static setAnimation(): void {
         if(this.isActive) {
             return;
         };
@@ -99,7 +99,7 @@ class ChatNotification {
 
     };
 
-    public static open(user: User, message: Message, type: EChatType) {
+    public static open(user: User, message: Message, type: EChatType): void {
         if(Desktop.isOpened()) {
             return;
         };

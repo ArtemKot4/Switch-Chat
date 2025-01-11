@@ -9,9 +9,12 @@ Callback.addCallback("ServerPlayerLoaded", (playerUid) => {
 
         const users = {...User.getList()};
 
-        for(const i in users) {
-            users[i].chatList = {[playerUid]: users[i].chatList[playerUid] || []};
-        };
+        if(!!users) {
+            for(const i in users) {
+                users[i].chatList = {[playerUid]: users[i].chatList[playerUid] || []};
+            };
+        }
+        
 
         client.send("packet.switch_chat.set_user_list", {users: users});
     };

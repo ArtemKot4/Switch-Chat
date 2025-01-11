@@ -1,7 +1,7 @@
 class Desktop {
     public static currentChatType = EChatType.GLOBAL;
 
-    public static openFor(user: User) {
+    public static openFor(user: User): void {
         ChatSwitch.UI.setContent(ChatSwitch.getContent(user));
         ChatSwitch.UI.open();
         ChatScrolling.open(this.currentChatType, user);
@@ -9,11 +9,11 @@ class Desktop {
         ChatUser.open(user);
     };
 
-    public static isOpened() {
+    public static isOpened(): boolean {
         return (ChatSwitch.UI.isOpened() && ChatScrolling.UI.isOpened() && ChatForm.UI.isOpened() && ChatUser.UI.isOpened());
     }
 
-    public static close() {
+    public static close(): void {
         ChatSwitch.UI.close();
         ChatScrolling.UI.close();
         ChatForm.UI.close();
@@ -25,7 +25,7 @@ class Desktop {
         return this.currentChatType === type;
     };
 
-    public static changeCurrentChatType(type: EChatType) {
+    public static changeCurrentChatType(type: EChatType): void {
         this.currentChatType = type;
     }
 

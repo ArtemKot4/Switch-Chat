@@ -8,19 +8,21 @@ type typeButtonProps = {
 interface IMessagePositionProps {
     y: number;
     type_button?: typeButtonProps
+};
+
+interface IMessageContent {
+    name: UI.UITextElement,
+    prefix?: UI.UITextElement,
+    message: UI.UITextElement,
+    type_button?: UI.UITextElement,
+    lines: number
 }
 
 class ChatScrolling {
     public static readonly HEIGHT = 370;
     public static readonly UI: UI.Window = new UI.Window();
 
-    public static getMessageContent(message: Message, user: User, {y, type_button}: IMessagePositionProps): {
-        name: UI.UITextElement,
-        prefix?: UI.UITextElement,
-        message: UI.UITextElement,
-        type_button?: UI.UITextElement,
-        lines: number
-    } {
+    public static getMessageContent(message: Message, user: User, {y, type_button}: IMessagePositionProps): IMessageContent {
         const separatedText = Utils.separateText(message.message, 40);
         const isDeleted = Message.isDeleted(message);
         const current_user = message.user;
@@ -93,29 +95,36 @@ class ChatScrolling {
         } as UI.WindowContent;
     };
 
-    public static getButtonSwitchContent(description: typeButtonProps, onClick?: () => void) {
+    public static getButtonSwitchContent(description: typeButtonProps, onClick?: () => void): UI.UITextElement {
         let headerParams = {
             color: android.graphics.Color.WHITE,
             char: "NONE"
         };
 
         switch(description.type) {
-            case EChatType.GLOBAL:
+            case EChatType.GLOBAL: {
                 headerParams.color = android.graphics.Color.YELLOW;
                 headerParams.char = "G";
                 break;
-            case EChatType.LOCAL:
+            };
+                
+            case EChatType.LOCAL: {
                 headerParams.color = android.graphics.Color.LTGRAY;
                 headerParams.char = "L";
                 break;
-            case EChatType.MIXED:
+            };
+                
+            case EChatType.MIXED: {
                 headerParams.color = android.graphics.Color.CYAN;
                 headerParams.char = "M";
                 break;
-            case EChatType.SHOP:
+            };
+
+            case EChatType.SHOP: {
                 headerParams.color = android.graphics.Color.GREEN;
                 headerParams.char = "S";
                 break;
+            }
         };
 
         return {
@@ -135,7 +144,7 @@ class ChatScrolling {
         }
     };
 
-    public static draw(type: EChatType, user: User) {
+    public static draw(type: EChatType, user: User): void {
         const messages = ChatManager.get(type);
 
         let translatedChat = Translation.translate("switch_chat.chat");
@@ -210,7 +219,7 @@ class ChatScrolling {
 
             content["message_" + i] = messageContent.message;
 
-            if(user.uuid === current_user.uuid) {
+            if(!messageContent.type_button && user.uuid === current_user.uuid) {
                 content["delete_" + i] = {
                     type: "text",
                     x: 890,
@@ -239,14 +248,14 @@ class ChatScrolling {
         return;
     };
 
-    public static update(elements: UI.ElementSet, scroll: number) {
+    public static update(elements: UI.ElementSet, scroll: number): void {
         this.UI.setContent(this.getContent(elements, scroll));
         this.UI.updateScrollDimensions();
         this.UI.forceRefresh();
         return;
     };
 
-    public static open(type: EChatType, user: User) {
+    public static open(type: EChatType, user: User): void {
         this.draw(type, user);
         if(!this.UI.isOpened()) {
             this.UI.open();
@@ -254,9 +263,11 @@ class ChatScrolling {
         return;
     };
 
-    public static refresh(type: EChatType = Desktop.currentChatType, user?: User) {
-        if(ChatScrolling.UI.isOpened() && Desktop.isCurrentChatType(type)) {
-            return ChatScrolling.draw(type, user || User.get(Player.getLocal()));
+    public static refresh(type: EChatType = Desktop.currentChatType, user?: User): void {
+        const isMixedType = Desktop.isCurrentChatType(EChatType.MIXED);
+
+        if(ChatScrolling.UI.isOpened() && Desktop.isCurrentChatType(type) || isMixedType) {
+            return ChatScrolling.draw(isMixedType ? EChatType.MIXED : type, user || User.get(Player.getLocal()));
         };
     }
 

@@ -99,12 +99,12 @@ class ChatForm {
         return content;
     };
 
-    public static setContent(text: Nullable<string>, user: User) {
+    public static setContent(text: Nullable<string>, user: User): void {
         this.UI.setContent(ChatForm.getContent(text, user));
         this.UI.forceRefresh();
     };
 
-    public static open(user: User) {
+    public static open(user: User): void {
         this.setContent(null, user);
         this.UI.open();
     };

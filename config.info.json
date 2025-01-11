@@ -25,6 +25,16 @@
         "en": "If enabled, messages sends after press special submit button in form.",
         "ru": "Если активно, сообщения отправляются после нажатия специальной кнопки отправки формы"
       }
+    },
+    "enable_special_options_mixed_chat": {
+      "name": {
+        "en": "Special options of mixed chat",
+        "ru": "Специальные возможности смешанного чата"
+      },
+      "description": {
+        "en": "If enabled, word, contain different signs: ?, ₽, ₿, ¢, ¥, €, $, £, or contains words \"buy\" or \"sell\", will send your message from mixed chat to shop chat, but messages, starts with \"!\" sign, will send your message to global chat",
+        "ru": "Если активно, слова, начинающиеся с символов: ?, ₽, ₿, ¢, ¥, €, $, £, или содержащие слова \"куплю\" или \"продам\", будут отправлены из смешанного чата в торговый чат, а сообщения, начинающиеся с знака \"!\", будут отправлены в глобальный чат"
+      }
     }
   }
 }

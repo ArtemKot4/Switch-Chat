@@ -33,13 +33,15 @@ class ChatButton {
 
     public static container: UI.Container = new UI.Container();
 
-    public static onClick(position: Vector, container) {
+    public static onClick(position: Vector, container: UI.Container): void {
         ChatButton.container.close();
         Network.sendToServer("packet.switch_chat.open", {});
     };
 
-    public static open() {
-        !this.container.isOpened() && this.container.openAs(ChatButton.UI);
+    public static open(): void {
+        if(!this.container.isOpened()) {
+            this.container.openAs(ChatButton.UI);
+        };
     }
 }
 

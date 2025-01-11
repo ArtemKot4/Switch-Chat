@@ -6,51 +6,104 @@ class ChatManager {
         mixed: [] as Message[]
     };
 
-    public static send(message: Message, type: EChatType) {
+    public static send(message: Message, type: EChatType): void {
         switch(type) {
-            case EChatType.GLOBAL:
+            case EChatType.GLOBAL: {
                 return Network.sendToServer("packet.switch_chat.update_global_chat_server", { message: message });
-            case EChatType.LOCAL:
-                return Network.sendToServer("packet.switch_chat.update_local_chat_server", { message: message});
-            case EChatType.SHOP:
+            };
+
+            case EChatType.LOCAL: {
+                return Network.sendToServer("packet.switch_chat.update_local_chat_server", { message: message}); 
+            };
+
+            case EChatType.SHOP: {
                 return Network.sendToServer("packet.switch_chat.update_shop_chat_server", {message: message});
-            case EChatType.MIXED:
-                return Network.sendToServer("packet.switch_chat.update_mixed_chat_server", {message: message});
+            };
+               
+            case EChatType.MIXED: {
+                if(ConfigManager.isSpecialMixedChat && message.message.length > 1) {
+                    if(this.hasImportantSign(message)) {
+                        return Network.sendToServer("packet.switch_chat.update_global_chat_server", {
+                            message: {
+                                ...message,
+                                message: message.message.slice(1)
+                            }
+                        });
+                    };
+                    
+                    const hasShopSign = this.hasShopSign(message);
+
+                    if(hasShopSign || this.hasShopKeyword(message)) {
+                        return Network.sendToServer("packet.switch_chat.update_shop_chat_server", {
+                            message: {
+                                ...message,
+                                message: hasShopSign ? message.message.slice(1) : message.message
+                            }
+                        });
+                    };
+                };
+
+                return Network.sendToServer("packet.switch_chat.update_mixed_chat_server", {
+                    message: message
+                });
+            };  
         };
     };
 
-    public static appendGlobal(message: Message) {
+    public static hasImportantSign(message: Message): boolean {
+        return message.message.startsWith("!");
+    };
+
+    public static hasShopSign(message: Message): boolean {
+        for(const i in Utils.shopSigns) {
+            if(message.message.startsWith(Utils.shopSigns[i])) {
+                return true;
+            }
+        };
+        return false;
+    };
+
+    public static hasShopKeyword(message: Message): boolean {
+        for(const i in Utils.shopKeywords) {
+            if(message.message.includes(Utils.shopKeywords[i])) {
+                return true;
+            }
+        };
+        return false;
+    };
+
+    public static appendGlobal(message: Message): void {
         ChatManager.messages.global.push(message);
     };
 
-    public static appendLocal(message: Message) {
+    public static appendLocal(message: Message): void {
         ChatManager.messages.local.push(message);
     };
 
-    public static appendMixed(message: Message, type: EChatType) {
+    public static appendMixed(message: Message, type: EChatType): void {
         let copy = new Message(message.user, message.message);
         Message.addMetadata(copy, "type", type);
 
         ChatManager.messages.mixed.push(copy);
     }
 
-    public static appendShop(message: Message) {
+    public static appendShop(message: Message): void {
         ChatManager.messages.shop.push(message);
     };
 
-    public static getGlobal() {
+    public static getGlobal(): Message[] {
         return ChatManager.messages.global;
     };
 
-    public static getLocal() {
+    public static getLocal(): Message[] {
         return ChatManager.messages.local;
     };
 
-    public static getMixed() {
+    public static getMixed(): Message[] {
         return ChatManager.messages.mixed;
     }
 
-    public static getShop() {
+    public static getShop(): Message[] {
         return ChatManager.messages.shop;
     }
 
@@ -66,41 +119,54 @@ class ChatManager {
         ChatManager.messages.shop = chat;
     };
 
-    public static set(type: EChatType, chat: Message[]) {
+    public static set(type: EChatType, chat: Message[]): void {
         switch(type) {
-            case EChatType.GLOBAL:
+            case EChatType.GLOBAL: {
                 return ChatManager.setGlobal(chat);
-            case EChatType.LOCAL:
+            };
+
+            case EChatType.LOCAL: {
                 return ChatManager.setLocal(chat);
-            case EChatType.SHOP:
+            };
+
+            case EChatType.SHOP: {
                 return ChatManager.setShop(chat);
-        }
-    }
+            };
+        };
+    };
 
     public static delete(index: number, type: EChatType): Message[] {
         const chat = ChatManager.get(type);
 
         chat.splice(index, 1);
         return chat;
-    }
+    };
 
     public static get(type: EChatType): Message[] {
         switch(type) {
-            case EChatType.GLOBAL:
+            case EChatType.GLOBAL: {
                 return ChatManager.getGlobal();
-            case EChatType.LOCAL:
+            };
+                
+            case EChatType.LOCAL: {
                 return ChatManager.getLocal();
-            case EChatType.MIXED:
+            };
+               
+            case EChatType.MIXED: {
                 return ChatManager.getMixed();
-            case EChatType.SHOP:
+            };
+
+            case EChatType.SHOP: {
                 return ChatManager.getShop();
-        }
+            };
+        };
     };
 
 };
 
 
 Network.addServerPacket("packet.switch_chat.update_global_chat_server", (client, data: { message: Message }) => {
+    Message.setParams(data.message);
     ChatManager.appendGlobal(data.message);
     Network.sendToAllClients("packet.switch_chat.update_global_chat_client", {chat: ChatManager.getGlobal(), user: User.get(client.getPlayerUid()) });
     return;
@@ -118,6 +184,7 @@ Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, 
     .filter(v => Entity.getType(v) === Native.EntityType.PLAYER) || [playerUid];
 
     if(!!players) {
+        Message.setParams(data.message);
         for(const player of players) {
             const newClient = Network.getClientForPlayer(player);
             newClient && newClient.send("packet.switch_chat.update_local_chat_client", { message: data.message, user: User.get(playerUid) });
@@ -127,6 +194,7 @@ Network.addServerPacket("packet.switch_chat.update_local_chat_server", (client, 
 });
 
 Network.addServerPacket("packet.switch_chat.update_shop_chat_server", (client, data: {message: Message}) => {
+    Message.setParams(data.message);
     ChatManager.appendShop(data.message);
     Network.sendToAllClients("packet.switch_chat.update_shop_chat_client", {chat: ChatManager.getShop(), user: User.get(client.getPlayerUid()) });
     return;
