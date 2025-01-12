@@ -1,24 +1,38 @@
+interface IDefaultChatWindow {
+    UI: UI.Window;
+    open(user: User, type: EChatType): void;
+    close(): void;
+};
+
 class Desktop {
+    public static UIList: Record<string, IDefaultChatWindow> = {};
+
+    public static setUI(name: string, ui: IDefaultChatWindow): void {
+        Desktop.UIList[name] = ui;
+    };
+
+    public static replaceUI(name: string, ui: IDefaultChatWindow): void {
+        Desktop.UIList[name] = ui;
+    };
+
+    public static deleteUI(name: string): void {
+        delete Desktop.UIList[name];
+    };
+
     public static currentChatType = EChatType.MIXED;
 
     public static openFor(user: User): void {
-        ChatSwitch.UI.setContent(ChatSwitch.getContent(user));
-        ChatSwitch.UI.open();
-        ChatScrolling.open(this.currentChatType, user);
-        ChatForm.open(user);
+        Object.values(Desktop.UIList).forEach((v) => v.open(user, this.currentChatType));
         //ChatUser.open(user);
     };
 
     public static isOpened(): boolean {
-        return (ChatSwitch.UI.isOpened() && ChatScrolling.UI.isOpened() && ChatForm.UI.isOpened() //&& ChatUser.UI.isOpened()
+        return (Object.values(Desktop.UIList).every((v) => v.UI.isOpened()) //&& ChatUser.UI.isOpened()
         );
     }
 
     public static close(): void {
-        ChatSwitch.UI.close();
-        ChatScrolling.UI.close();
-        ChatForm.UI.close();
-        //ChatUser.UI.close();
+        Object.values(Desktop.UIList).forEach((v) => v.close());
         ChatButton.open();
     };
 
@@ -89,3 +103,9 @@ new GlobalChatShowCommand();
 new ShopChatShowCommand();
 new LocalChatShareCommand();
 new MixedChatShareCommand();
+
+Callback.addCallback("LevelDisplayed", () => {
+    Desktop.setUI("chat_switch", ChatSwitch);
+    Desktop.setUI("chat_scrolling", ChatScrolling);
+    Desktop.setUI("chat_form", ChatForm);
+})

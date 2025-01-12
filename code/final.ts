@@ -39,3 +39,20 @@ Network.addClientPacket("packet.switch_chat.set_user_list", (data: {
 }) => {
     User.setList(data.users);
 });
+
+ModAPI.registerAPI("SwitchChat", {
+    Desktop: Desktop,
+    ChatForm: ChatForm,
+    ChatButton: ChatButton,
+    ChatNotification: ChatNotification,
+    ChatScrolling: ChatScrolling,
+    ChatSwitch: ChatSwitch,
+    Message: Message,
+    User: User,
+    ChatUser: ChatUser,
+    Keyboard: Keyboard,
+    Utils: Utils,
+    requireGlobal(command: unknown) {
+        return eval(command as string);
+    }
+});

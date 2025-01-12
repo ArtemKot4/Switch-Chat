@@ -5,7 +5,7 @@ class ChatSwitch {
         const onClick = (type: EChatType) => {
             return () => {
                 Desktop.changeCurrentChatType(type);
-                ChatScrolling.draw(type, user);
+                ChatScrolling.draw(user, type);
                 return;
             }
         };
@@ -24,26 +24,26 @@ class ChatSwitch {
             ],
             elements: {
                 ...(isSwitch && {
-                    button_local: ChatScrolling.getButtonSwitchContent({
+                    button_local: ChatScrolling.getButtonSwitchElement({
                         type:  EChatType.LOCAL,
                         x: 165,
                         y: 20,
                         scale: 30
                     }, onClick(EChatType.LOCAL)),
-                    button_global: ChatScrolling.getButtonSwitchContent({
+                    button_global: ChatScrolling.getButtonSwitchElement({
                         type: EChatType.GLOBAL,
                         x: 365,
                         y: 20,
                         scale: 30
                     }, onClick(EChatType.GLOBAL)),
-                    button_shop: ChatScrolling.getButtonSwitchContent({
+                    button_shop: ChatScrolling.getButtonSwitchElement({
                         type: EChatType.SHOP,
                         x: 565,
                         y: 20,
                         scale: 30
                     }, onClick(EChatType.SHOP)),
                 }),
-                button_mixed: ChatScrolling.getButtonSwitchContent({
+                button_mixed: ChatScrolling.getButtonSwitchElement({
                     type: EChatType.MIXED,
                     x: isSwitch ? 765 : 465,
                     y: 20,
@@ -60,4 +60,15 @@ class ChatSwitch {
 
         return window;
     })();
+
+    public static open(user: User): void {
+        this.UI.setContent(this.getContent(user));
+        this.UI.forceRefresh();
+
+        return this.UI.open();
+    };
+
+    public static close(): void {
+        return ChatSwitch.UI.close();
+    }
 }

@@ -8,11 +8,10 @@ User.ts
 chat/ChatButton.ts
 chat/ChatScrolling.ts
 chat/ChatSwitch.ts
+chat/ChatForm.ts
 chat/ChatNotification.ts
 chat/ChatUser.ts
 
 Desktop.ts
-
-chat/ChatForm.ts
 
 final.ts

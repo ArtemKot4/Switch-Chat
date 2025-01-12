@@ -78,7 +78,7 @@ class User {
     };
 
     public static setList(users: Record<number, User>): void {
-        User.list = users;
+        User.list = users || {};
     };
 
     public static getList() {

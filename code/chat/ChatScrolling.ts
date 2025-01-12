@@ -68,7 +68,7 @@ class ChatScrolling {
         };
 
         if(type_button) {
-            content["type_button"] = this.getButtonSwitchContent(type_button, () => {
+            content["type_button"] = this.getButtonSwitchElement(type_button, () => {
                 Desktop.changeCurrentChatType(type_button.type);
                 Desktop.openFor(user);
                 return;
@@ -97,7 +97,7 @@ class ChatScrolling {
         } as UI.WindowContent;
     };
 
-    public static getButtonSwitchContent(description: typeButtonProps, onClick?: () => void): UI.UITextElement {
+    public static getButtonSwitchElement(description: typeButtonProps, onClick?: () => void): UI.UITextElement {
         let headerParams = {
             color: android.graphics.Color.WHITE,
             char: "NONE"
@@ -146,9 +146,7 @@ class ChatScrolling {
         };
     };
 
-    public static draw(type: EChatType, user: User): void {
-        const messages = ChatManager.get(type);
-
+    public static getElementsWith(messages: Message[], user: User, type?: EChatType): [elements: UI.ElementSet, scroll: number] {
         let translatedChat = Translation.translate("switch_chat.chat");
 
         let content = {
@@ -165,8 +163,8 @@ class ChatScrolling {
                     onClick: (position, container) => Desktop.close()
                 }
             },
-            chat_type: this.getButtonSwitchContent({
-                type,
+            chat_type: this.getButtonSwitchElement({
+                type: type ?? EChatType.LOCAL,
                 x: (translatedChat.length * 20) + 35,
                 y: 10,
                 scale: 30
@@ -183,9 +181,8 @@ class ChatScrolling {
                     color: android.graphics.Color.GRAY
                 },
                 multiline: true
-            }
-            this.update(content, 0);
-            return;
+            };
+            return [content, 0];
         };
 
         let height = 80;
@@ -210,10 +207,10 @@ class ChatScrolling {
                 )
             });
 
-            content["name_" + i] = messageContent.name
+            content["name_" + i] = messageContent.name;
 
             if(messageContent.prefix) {
-                content["prefix_" + i] = messageContent.prefix
+                content["prefix_" + i] = messageContent.prefix;
             };   
 
             if(messageContent.type_button) {
@@ -243,11 +240,16 @@ class ChatScrolling {
             height += 30 + (messageContent.lines * 20);
             scroll += 30 + (messageContent.lines * 20);
         };
+        
+        return [content, scroll];
+    };
 
-        this.UI.content.elements = content;
+    public static draw(user: User, type: EChatType): void {
+        const messages = ChatManager.get(type);
 
-        this.update(content, scroll);
-        return;
+        const content = ChatScrolling.getElementsWith(messages, user, type);
+
+        return this.update(content[0], content[1]);
     };
 
     public static update(elements: UI.ElementSet, scroll: number): void {
@@ -257,21 +259,23 @@ class ChatScrolling {
         return;
     };
 
-    public static open(type: EChatType, user: User): void {
-        this.draw(type, user);
-        if(!this.UI.isOpened()) {
-            this.UI.open();
-        }
+    public static open(user: User, type: EChatType): void {
+        this.draw(user, type);
+        this.UI.open();
         return;
     };
+
+    public static close() {
+        return this.UI.close();
+    }
 
     public static refresh(type: EChatType = Desktop.currentChatType, user?: User): void {
         const isMixedType = Desktop.isCurrentChatType(EChatType.MIXED);
 
         if(ChatScrolling.UI.isOpened() && isMixedType || Desktop.isCurrentChatType(type)) {
-            return ChatScrolling.draw(isMixedType ? EChatType.MIXED : type, user || User.get(Player.getLocal()));
+            return ChatScrolling.draw(user || User.get(Player.getLocal()), isMixedType ? EChatType.MIXED : type);
         };
-    }
+    };
 
     static {
         this.UI.setContent(this.getContent());

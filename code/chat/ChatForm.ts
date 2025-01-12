@@ -108,5 +108,9 @@ class ChatForm {
         this.setContent(null, user);
         this.UI.open();
     };
+
+    public static close(): void {
+        return this.UI.close();
+    }
 };
 
