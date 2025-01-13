@@ -60,9 +60,9 @@ class User {
         }
     };
     
-    public static get = (uuid: number): User => {
+    public static get = (uuid: number, name?: string, prefix?: typeof User.prototype.prefix): User => {
         if(!(uuid in User.list)) {
-            User.add(uuid, Entity.getNameTag(uuid));
+            User.add(uuid, name || Entity.getNameTag(uuid), prefix || null);
         };
         return User.list[uuid];
     };
@@ -82,7 +82,7 @@ class User {
     };
 
     public static getList() {
-        return User.list;
+        return User.list || {};
     };
 
     public static addChat(user: User, user2: User): void {
@@ -96,7 +96,7 @@ class User {
 };
 
 Saver.addSavesScope("scope.switch_chat.user_list", function read(scope: { list: Record<number, User> }) {
-    User.setList(scope ? scope.list : {});
+    User.setList(scope.list);
 }, function save() {
     return { list: User.getList() };
 });

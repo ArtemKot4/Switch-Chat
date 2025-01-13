@@ -95,7 +95,7 @@ class LocalChatShareCommand  extends ClientChatShareCommand {
 
 class MixedChatShareCommand  extends ClientChatShareCommand {
     public constructor() {
-        super(EChatType.LOCAL, "localchat");
+        super(EChatType.MIXED, "mixedchat");
     };
 };
 
@@ -105,7 +105,16 @@ new LocalChatShareCommand();
 new MixedChatShareCommand();
 
 Callback.addCallback("LevelDisplayed", () => {
+    
     Desktop.setUI("chat_switch", ChatSwitch);
     Desktop.setUI("chat_scrolling", ChatScrolling);
     Desktop.setUI("chat_form", ChatForm);
-})
+});
+
+
+Game.message = function(message: string): void {
+    ChatManager.appendLocal(new Message(User.get(-1), message));
+    ChatScrolling.refresh(Desktop.currentChatType, User.get(Player.get()));
+
+    return Game.message(message);
+};

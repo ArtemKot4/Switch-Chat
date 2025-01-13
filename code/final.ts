@@ -7,17 +7,17 @@ Callback.addCallback("ServerPlayerLoaded", (playerUid) => {
         client.send("packet.switch_chat.update_global_chat_client", {chat: ChatManager.getGlobal()});
         client.send("packet.switch_chat.update_shop_chat_client", {chat: ChatManager.getShop()});
 
-        const users = {...User.getList()};
+        const users = {...User.getList(), ...User.get(-1)};
 
-        if(Object.keys(users).length > 1) {
             for(const i in users) {
-                const user = users[i];
+                const user: User = users[i];
 
+                if(!user || user && user.uuid === playerUid) continue;
                 user.chatList = {[user.uuid]: user.chatList[playerUid] || []};
             };
-        };
 
         client.send("packet.switch_chat.set_user_list", {users: users});
+        
     };
 
 });

@@ -220,6 +220,18 @@ Network.addServerPacket("packet.switch_chat.update_mixed_chat_server", (client, 
 
 
 Network.addClientPacket("packet.switch_chat.update_local_chat_client", (data: {message: Message, user: User }) => {
+    const message = data.message.message;
+    
+    if(message.startsWith("/")) {
+        const command = Commands.exec(message);
+
+        if(command === null) {
+            return;
+        } else {   
+           return ChatManager.appendLocal(new Message(User.get(-1), String(command)));
+        };
+    };
+
     ChatManager.appendMixed(data.message, EChatType.LOCAL);
     ChatManager.appendLocal(data.message);
     ChatScrolling.refresh(EChatType.LOCAL, data.user);

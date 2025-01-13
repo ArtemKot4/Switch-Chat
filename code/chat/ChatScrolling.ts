@@ -37,7 +37,15 @@ class ChatScrolling {
             },
             message: {
                 type: "text",
-                x: ((current_user.name + 2 + (current_user.prefix ? current_user.prefix.name : "")).length * 15) + 30,
+                x: (() => {
+                    if(user.uuid === -1) {
+                        return 40;
+                    }
+                    else {
+                        const prefix = (current_user.prefix ? current_user.prefix.name : "");
+                        return ((current_user.name + 2 + (prefix)).length * 15) + 30
+                    }
+                })(),
                 y: y,
                 text: separatedText,
                 font: {
@@ -55,7 +63,7 @@ class ChatScrolling {
             isDeleted: isDeleted
         } satisfies Record<string, UI.UITextElement | number | boolean>;
 
-        if(user.prefix && user.prefix.name || isDeleted) {
+        if(user.uuid !== -1 && (user.prefix && user.prefix.name || isDeleted)) {
             content["prefix"] = {
                 type: "text",
                 x: ((current_user.name + 1).length * 15) + 20,
